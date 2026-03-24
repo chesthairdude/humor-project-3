@@ -20,9 +20,11 @@ export default async function FlavorDetailPage({
       .single(),
     supabase
       .from("humor_flavor_steps")
-      .select("id, humor_flavor_id, llm_system_prompt, llm_user_prompt, step_order, created_at")
+      .select(
+        "id, humor_flavor_id, order_by, llm_system_prompt, llm_user_prompt, description, llm_temperature, created_datetime_utc, modified_datetime_utc"
+      )
       .eq("humor_flavor_id", params.flavorId)
-      .order("step_order", { ascending: true }),
+      .order("order_by", { ascending: true }),
     supabase
       .from("captions")
       .select("id, caption_content, created_at, images(image_url)")

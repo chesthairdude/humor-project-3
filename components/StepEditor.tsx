@@ -32,7 +32,7 @@ export function StepEditor({
   const [error, setError] = useState("")
   const promptChainPreview = steps
     .slice()
-    .sort((a, b) => a.step_order - b.step_order)
+    .sort((a, b) => a.order_by - b.order_by)
     .map((step, index) =>
       [
         `Step ${index + 1}`,
@@ -74,6 +74,7 @@ export function StepEditor({
         .update({
           llm_system_prompt: systemPrompt.trim() || null,
           llm_user_prompt: userPrompt.trim() || null,
+          modified_datetime_utc: new Date().toISOString(),
         })
         .eq("id", editingStep.id)
         .select("*")
@@ -89,14 +90,16 @@ export function StepEditor({
         current.map((step) => (step.id === data.id ? (data as HumorFlavorStep) : step))
       )
     } else {
-      const nextOrder = steps.length > 0 ? Math.max(...steps.map((step) => step.step_order)) + 1 : 1
+      const nextOrder = steps.length > 0 ? Math.max(...steps.map((step) => step.order_by)) + 1 : 1
       const { data, error: createError } = await supabase
         .from("humor_flavor_steps")
         .insert({
           humor_flavor_id: flavor.id,
           llm_system_prompt: systemPrompt.trim() || null,
           llm_user_prompt: userPrompt.trim() || null,
-          step_order: nextOrder,
+          order_by: nextOrder,
+          created_datetime_utc: new Date().toISOString(),
+          modified_datetime_utc: new Date().toISOString(),
         })
         .select("*")
         .single()
@@ -108,7 +111,7 @@ export function StepEditor({
       }
 
       setSteps((current) =>
-        [...current, data as HumorFlavorStep].sort((a, b) => a.step_order - b.step_order)
+        [...current, data as HumorFlavorStep].sort((a, b) => a.order_by - b.order_by)
       )
     }
 
@@ -117,7 +120,7 @@ export function StepEditor({
     router.refresh()
   }
 
-  async function moveStep(stepId: string, direction: "up" | "down") {
+  async function moveStep(stepId: number, direction: "up" | "down") {
     const currentIndex = steps.findIndex((step) => step.id === stepId)
     const swapIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
 
@@ -132,11 +135,11 @@ export function StepEditor({
     const [{ error: currentError }, { error: swapError }] = await Promise.all([
       supabase
         .from("humor_flavor_steps")
-        .update({ step_order: swap.step_order })
+        .update({ order_by: swap.order_by, modified_datetime_utc: new Date().toISOString() })
         .eq("id", current.id),
       supabase
         .from("humor_flavor_steps")
-        .update({ step_order: current.step_order })
+        .update({ order_by: current.order_by, modified_datetime_utc: new Date().toISOString() })
         .eq("id", swap.id),
     ])
 
@@ -146,13 +149,13 @@ export function StepEditor({
     }
 
     const updatedSteps = [...steps]
-    updatedSteps[currentIndex] = { ...swap, step_order: current.step_order }
-    updatedSteps[swapIndex] = { ...current, step_order: swap.step_order }
-    setSteps(updatedSteps.sort((a, b) => a.step_order - b.step_order))
+    updatedSteps[currentIndex] = { ...swap, order_by: current.order_by }
+    updatedSteps[swapIndex] = { ...current, order_by: swap.order_by }
+    setSteps(updatedSteps.sort((a, b) => a.order_by - b.order_by))
     router.refresh()
   }
 
-  async function deleteStep(stepId: string) {
+  async function deleteStep(stepId: number) {
     const confirmed = window.confirm("Delete this step?")
     if (!confirmed) {
       return

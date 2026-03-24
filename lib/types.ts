@@ -18,12 +18,21 @@ export type HumorFlavor = {
 }
 
 export type HumorFlavorStep = {
-  id: string
+  id: number
   humor_flavor_id: number
   llm_system_prompt: string | null
   llm_user_prompt: string | null
-  step_order: number
-  created_at: string
+  order_by: number
+  created_datetime_utc: string
+  llm_temperature?: number | null
+  description?: string | null
+  llm_input_type_id?: number | null
+  llm_output_type_id?: number | null
+  llm_model_id?: number | null
+  humor_flavor_step_type_id?: number | null
+  created_by_user_id?: string | null
+  modified_by_user_id?: string | null
+  modified_datetime_utc?: string | null
 }
 
 export type FlavorCaption = {
