@@ -167,7 +167,7 @@ export function StepEditor({
             <p className="muted-label" style={{ margin: "0 0 8px" }}>
               Prompt Chain
             </p>
-            <h1 style={{ margin: 0, fontSize: 30, letterSpacing: "-0.04em" }}>{flavor.name}</h1>
+            <h1 style={{ margin: 0, fontSize: 30, letterSpacing: "-0.04em" }}>{flavor.slug}</h1>
             <p style={{ margin: "10px 0 0", fontSize: 14, color: "var(--text-secondary)" }}>
               {flavor.description || "No description yet."}
             </p>

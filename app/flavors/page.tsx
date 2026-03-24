@@ -7,8 +7,8 @@ export default async function FlavorsPage() {
 
   const { data: flavors, error: flavorError } = await supabase
     .from("humor_flavors")
-    .select("id, name, description, created_at")
-    .order("created_at", { ascending: false })
+    .select("id, slug, description, created_datetime_utc")
+    .order("created_datetime_utc", { ascending: false })
 
   const loadErrors: string[] = []
   if (flavorError) {

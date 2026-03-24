@@ -6,10 +6,13 @@ export type Profile = {
 }
 
 export type HumorFlavor = {
-  id: string
-  name: string
+  id: number
+  slug: string
   description: string | null
-  created_at: string
+  created_datetime_utc: string
+  created_by_user_id?: string | null
+  modified_by_user_id?: string | null
+  modified_datetime_utc?: string | null
   humor_flavor_steps?: Array<{ count: number }>
   step_count?: number
 }

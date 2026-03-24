@@ -13,7 +13,7 @@ export default async function FlavorEditPage({
 
   const { data: flavor } = await supabase
     .from("humor_flavors")
-    .select("id, name, description, created_at")
+    .select("id, slug, description, created_datetime_utc, modified_datetime_utc")
     .eq("id", params.flavorId)
     .single()
 

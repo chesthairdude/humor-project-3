@@ -26,7 +26,7 @@ export function FlavorCard({ flavor }: { flavor: HumorFlavor }) {
           margin: "0 0 6px",
         }}
       >
-        {flavor.name}
+        {flavor.slug}
       </h2>
       <p
         style={{

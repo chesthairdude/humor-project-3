@@ -15,7 +15,7 @@ export default async function FlavorDetailPage({
   const [{ data: flavor }, { data: steps }, { data: captions }] = await Promise.all([
     supabase
       .from("humor_flavors")
-      .select("id, name, description, created_at")
+      .select("id, slug, description, created_datetime_utc")
       .eq("id", params.flavorId)
       .single(),
     supabase

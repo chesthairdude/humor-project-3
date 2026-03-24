@@ -18,14 +18,14 @@ export function FlavorListClient({
   const router = useRouter()
   const [flavors, setFlavors] = useState(initialFlavors)
   const [open, setOpen] = useState(false)
-  const [name, setName] = useState("")
+  const [slug, setSlug] = useState("")
   const [description, setDescription] = useState("")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
 
   async function createFlavor() {
-    if (!name.trim()) {
-      setError("Flavor name is required.")
+    if (!slug.trim()) {
+      setError("Flavor slug is required.")
       return
     }
 
@@ -34,8 +34,13 @@ export function FlavorListClient({
     const supabase = createClient()
     const { data, error: createError } = await supabase
       .from("humor_flavors")
-      .insert({ name: name.trim(), description: description.trim() || null })
-      .select("id, name, description, created_at")
+      .insert({
+        slug: slug.trim(),
+        description: description.trim() || null,
+        created_datetime_utc: new Date().toISOString(),
+        modified_datetime_utc: new Date().toISOString(),
+      })
+      .select("id, slug, description, created_datetime_utc")
       .single()
 
     if (createError || !data) {
@@ -45,14 +50,14 @@ export function FlavorListClient({
     }
 
     setFlavors((current) => [{ ...data, humor_flavor_steps: [{ count: 0 }] }, ...current])
-    setName("")
+    setSlug("")
     setDescription("")
     setOpen(false)
     setSaving(false)
     router.refresh()
   }
 
-  async function deleteFlavor(id: string) {
+  async function deleteFlavor(id: number) {
     const confirmed = window.confirm("Delete this flavor and its steps?")
     if (!confirmed) {
       return
@@ -171,9 +176,9 @@ export function FlavorListClient({
         <div style={{ display: "grid", gap: 14 }}>
           <div>
             <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
-              Name
+              Slug
             </label>
-            <input value={name} onChange={(event) => setName(event.target.value)} />
+            <input value={slug} onChange={(event) => setSlug(event.target.value)} />
           </div>
 
           <div>

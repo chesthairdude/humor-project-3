@@ -8,14 +8,14 @@ import { createClient } from "@/utils/supabase/client"
 
 export function FlavorEditForm({ flavor }: { flavor: HumorFlavor }) {
   const router = useRouter()
-  const [name, setName] = useState(flavor.name)
+  const [slug, setSlug] = useState(flavor.slug)
   const [description, setDescription] = useState(flavor.description || "")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
 
   async function saveFlavor() {
-    if (!name.trim()) {
-      setError("Flavor name is required.")
+    if (!slug.trim()) {
+      setError("Flavor slug is required.")
       return
     }
 
@@ -25,8 +25,9 @@ export function FlavorEditForm({ flavor }: { flavor: HumorFlavor }) {
     const { error: updateError } = await supabase
       .from("humor_flavors")
       .update({
-        name: name.trim(),
+        slug: slug.trim(),
         description: description.trim() || null,
+        modified_datetime_utc: new Date().toISOString(),
       })
       .eq("id", flavor.id)
 
@@ -52,9 +53,9 @@ export function FlavorEditForm({ flavor }: { flavor: HumorFlavor }) {
       <div style={{ display: "grid", gap: 14 }}>
         <div>
           <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
-            Name
+            Slug
           </label>
-          <input value={name} onChange={(event) => setName(event.target.value)} />
+          <input value={slug} onChange={(event) => setSlug(event.target.value)} />
         </div>
 
         <div>
