@@ -1,6 +1,7 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 
 import { useTheme, type Theme } from "@/app/providers/ThemeProvider"
@@ -14,8 +15,27 @@ const THEMES: Array<{ value: Theme; label: string }> = [
 
 export function Header() {
   const router = useRouter()
+  const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [signingOut, setSigningOut] = useState(false)
+
+  function getBackHref() {
+    if (!pathname) {
+      return "/flavors"
+    }
+
+    if (pathname.endsWith("/edit")) {
+      return pathname.replace(/\/edit$/, "")
+    }
+
+    if (pathname.startsWith("/flavors/")) {
+      return "/flavors"
+    }
+
+    return null
+  }
+
+  const backHref = getBackHref()
 
   async function signOut() {
     setSigningOut(true)
@@ -43,9 +63,39 @@ export function Header() {
         zIndex: 50,
       }}
     >
-      <span style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
-        🎭 Humor Flavor Tool
-      </span>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        {backHref ? (
+          <button
+            onClick={() => router.push(backHref)}
+            className="secondary-button"
+            style={{
+              padding: "6px 12px",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            ← Back
+          </button>
+        ) : null}
+
+        <Link
+          href="/flavors"
+          className="secondary-button"
+          style={{
+            padding: "6px 12px",
+            fontSize: 12,
+            fontWeight: 600,
+            color: "var(--text-secondary)",
+          }}
+        >
+          Flavor library
+        </Link>
+
+        <span style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+          🎭 Humor Flavor Tool
+        </span>
+      </div>
 
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         {THEMES.map((item) => (

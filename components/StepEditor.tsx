@@ -22,12 +22,15 @@ export function StepEditor({
   const router = useRouter()
   const [steps, setSteps] = useState(initialSteps)
   const [captions] = useState(initialCaptions)
-  const [expandedStepId, setExpandedStepId] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingStep, setEditingStep] = useState<HumorFlavorStep | null>(null)
   const [prompt, setPrompt] = useState("")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+  const promptChainPreview = steps
+    .sort((a, b) => a.step_order - b.step_order)
+    .map((step, index) => `Step ${index + 1}\n${step.prompt}`)
+    .join("\n\n")
 
   function openCreateModal() {
     setEditingStep(null)
@@ -75,7 +78,7 @@ export function StepEditor({
       const { data, error: createError } = await supabase
         .from("humor_flavor_steps")
         .insert({
-          flavor_id: flavor.id,
+          humor_flavor_id: flavor.id,
           prompt: prompt.trim(),
           step_order: nextOrder,
         })
@@ -191,9 +194,35 @@ export function StepEditor({
           </div>
         </div>
 
+        <div
+          style={{
+            marginBottom: 18,
+            padding: 18,
+            borderRadius: 16,
+            background: "var(--input-bg)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          <p className="muted-label" style={{ margin: "0 0 10px" }}>
+            Exact Prompt Chain
+          </p>
+          <pre
+            style={{
+              margin: 0,
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              fontFamily: "var(--font-family-sans)",
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: "var(--text-primary)",
+            }}
+          >
+            {promptChainPreview || "No steps yet."}
+          </pre>
+        </div>
+
         <div style={{ display: "grid", gap: 12 }}>
           {steps.map((step, index) => {
-            const expanded = expandedStepId === step.id
             return (
               <div
                 key={step.id}
@@ -227,35 +256,20 @@ export function StepEditor({
 
                 <div style={{ flex: 1 }}>
                   <p
-                    className={expanded ? undefined : "step-prompt-collapsed"}
                     style={{
                       margin: 0,
                       fontSize: 14,
                       color: "var(--text-primary)",
                       lineHeight: 1.5,
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
                     }}
                   >
                     {step.prompt}
                   </p>
-                  {step.prompt.length > 180 ? (
-                    <button
-                      onClick={() =>
-                        setExpandedStepId((current) => (current === step.id ? null : step.id))
-                      }
-                      style={{
-                        padding: 0,
-                        background: "transparent",
-                        border: "none",
-                        color: "var(--accent-primary)",
-                        marginTop: 8,
-                        cursor: "pointer",
-                        fontSize: 12,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {expanded ? "Collapse" : "Expand"}
-                    </button>
-                  ) : null}
+                  <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--text-muted)" }}>
+                    Exact step text from `humor_flavor_steps.prompt`
+                  </p>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
@@ -393,8 +407,8 @@ export function StepEditor({
         title={editingStep ? "Edit step" : "Create step"}
         description={
           editingStep
-            ? "Refine the instruction for this step."
-            : "Add the next instruction in the humor flavor chain."
+            ? "Edit the exact stored prompt for this step."
+            : "Add the next exact prompt in this humor flavor chain."
         }
         onClose={() => {
           if (!saving) {

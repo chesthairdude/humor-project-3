@@ -21,7 +21,7 @@ export default async function FlavorDetailPage({
     supabase
       .from("humor_flavor_steps")
       .select("*")
-      .eq("flavor_id", params.flavorId)
+      .eq("humor_flavor_id", params.flavorId)
       .order("step_order", { ascending: true }),
     supabase
       .from("captions")

@@ -19,7 +19,7 @@ export type HumorFlavor = {
 
 export type HumorFlavorStep = {
   id: string
-  flavor_id: string
+  humor_flavor_id: number
   prompt: string
   step_order: number
   created_at: string
