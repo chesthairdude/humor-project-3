@@ -94,38 +94,58 @@ export function FlavorListClient({ initialFlavors }: { initialFlavors: HumorFlav
         </button>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: 16,
-        }}
-      >
-        {flavors.map((flavor) => (
-          <div key={flavor.id} style={{ position: "relative" }}>
-            <FlavorCard flavor={flavor} />
-            <button
-              onClick={(event) => {
-                event.stopPropagation()
-                deleteFlavor(flavor.id)
-              }}
-              className="secondary-button"
-              style={{
-                position: "absolute",
-                top: 14,
-                right: 14,
-                padding: "6px 10px",
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-                color: "var(--accent-negative)",
-              }}
-            >
-              Delete
-            </button>
-          </div>
-        ))}
-      </div>
+      {flavors.length === 0 ? (
+        <div
+          className="glass-panel"
+          style={{
+            padding: 28,
+            borderRadius: 20,
+            textAlign: "center",
+          }}
+        >
+          <p className="muted-label" style={{ margin: "0 0 10px" }}>
+            No flavors yet
+          </p>
+          <p style={{ margin: 0, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+            No humor flavors were returned from Supabase. If you expected existing data here,
+            the old nested count query was likely failing silently. Try a refresh, then create a
+            new flavor to confirm the table is writable for your account.
+          </p>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: 16,
+          }}
+        >
+          {flavors.map((flavor) => (
+            <div key={flavor.id} style={{ position: "relative" }}>
+              <FlavorCard flavor={flavor} />
+              <button
+                onClick={(event) => {
+                  event.stopPropagation()
+                  deleteFlavor(flavor.id)
+                }}
+                className="secondary-button"
+                style={{
+                  position: "absolute",
+                  top: 14,
+                  right: 14,
+                  padding: "6px 10px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  color: "var(--accent-negative)",
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <Modal
         open={open}

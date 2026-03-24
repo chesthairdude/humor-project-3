@@ -6,7 +6,7 @@ import type { HumorFlavor } from "@/lib/types"
 
 export function FlavorCard({ flavor }: { flavor: HumorFlavor }) {
   const router = useRouter()
-  const stepCount = flavor.humor_flavor_steps?.[0]?.count ?? 0
+  const stepCount = flavor.step_count ?? flavor.humor_flavor_steps?.[0]?.count ?? 0
 
   return (
     <div

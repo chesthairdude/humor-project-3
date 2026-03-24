@@ -11,6 +11,7 @@ export type HumorFlavor = {
   description: string | null
   created_at: string
   humor_flavor_steps?: Array<{ count: number }>
+  step_count?: number
 }
 
 export type HumorFlavorStep = {
