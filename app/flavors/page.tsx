@@ -10,8 +10,9 @@ export default async function FlavorsPage() {
     .select("id, name, description, created_at")
     .order("created_at", { ascending: false })
 
+  const loadErrors: string[] = []
   if (flavorError) {
-    throw new Error(`Failed to load humor flavors: ${flavorError.message}`)
+    loadErrors.push(`Failed to load humor flavors: ${flavorError.message}`)
   }
 
   const flavorIds = (flavors || []).map((flavor) => flavor.id)
@@ -24,12 +25,12 @@ export default async function FlavorsPage() {
       .in("flavor_id", flavorIds)
 
     if (stepError) {
-      throw new Error(`Failed to load flavor step counts: ${stepError.message}`)
-    }
-
-    stepCounts = new Map<string, number>()
-    for (const row of stepRows || []) {
-      stepCounts.set(row.flavor_id, (stepCounts.get(row.flavor_id) || 0) + 1)
+      loadErrors.push(`Failed to load flavor step counts: ${stepError.message}`)
+    } else {
+      stepCounts = new Map<string, number>()
+      for (const row of stepRows || []) {
+        stepCounts.set(row.flavor_id, (stepCounts.get(row.flavor_id) || 0) + 1)
+      }
     }
   }
 
@@ -38,5 +39,10 @@ export default async function FlavorsPage() {
     step_count: stepCounts.get(flavor.id) || 0,
   }))
 
-  return <FlavorListClient initialFlavors={normalizedFlavors} />
+  return (
+    <FlavorListClient
+      initialFlavors={normalizedFlavors}
+      loadError={loadErrors.length > 0 ? loadErrors.join(" ") : null}
+    />
+  )
 }

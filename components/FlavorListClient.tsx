@@ -8,7 +8,13 @@ import { Modal } from "@/components/Modal"
 import type { HumorFlavor } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
 
-export function FlavorListClient({ initialFlavors }: { initialFlavors: HumorFlavor[] }) {
+export function FlavorListClient({
+  initialFlavors,
+  loadError,
+}: {
+  initialFlavors: HumorFlavor[]
+  loadError?: string | null
+}) {
   const router = useRouter()
   const [flavors, setFlavors] = useState(initialFlavors)
   const [open, setOpen] = useState(false)
@@ -94,6 +100,12 @@ export function FlavorListClient({ initialFlavors }: { initialFlavors: HumorFlav
         </button>
       </div>
 
+      {loadError ? (
+        <div className="danger-banner" style={{ marginBottom: 18 }}>
+          {loadError}
+        </div>
+      ) : null}
+
       {flavors.length === 0 ? (
         <div
           className="glass-panel"
@@ -108,8 +120,7 @@ export function FlavorListClient({ initialFlavors }: { initialFlavors: HumorFlav
           </p>
           <p style={{ margin: 0, color: "var(--text-secondary)", lineHeight: 1.6 }}>
             No humor flavors were returned from Supabase. If you expected existing data here,
-            the old nested count query was likely failing silently. Try a refresh, then create a
-            new flavor to confirm the table is writable for your account.
+            check your deployed env vars and Supabase row-level security policies, then refresh.
           </p>
         </div>
       ) : (
