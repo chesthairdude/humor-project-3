@@ -12,7 +12,7 @@ export default async function FlavorDetailPage({
 }) {
   const { supabase } = await getAuthorizedProfile()
 
-  const [{ data: flavor }, { data: steps }, { data: captions }] = await Promise.all([
+  const [{ data: flavor }, { data: steps, error: stepsError }, { data: captions }] = await Promise.all([
     supabase
       .from("humor_flavors")
       .select("id, slug, description, created_datetime_utc")
@@ -20,7 +20,7 @@ export default async function FlavorDetailPage({
       .single(),
     supabase
       .from("humor_flavor_steps")
-      .select("*")
+      .select("id, humor_flavor_id, llm_system_prompt, llm_user_prompt, step_order, created_at")
       .eq("humor_flavor_id", params.flavorId)
       .order("step_order", { ascending: true }),
     supabase
@@ -49,6 +49,7 @@ export default async function FlavorDetailPage({
           flavor={flavor as HumorFlavor}
           initialSteps={(steps || []) as HumorFlavorStep[]}
           initialCaptions={normalizedCaptions}
+          stepLoadError={stepsError ? `Failed to load prompt chain: ${stepsError.message}` : null}
         />
       </div>
       <div style={{ position: "sticky", top: 84 }}>

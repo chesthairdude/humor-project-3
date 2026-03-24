@@ -12,43 +12,55 @@ type StepEditorProps = {
   flavor: HumorFlavor
   initialSteps: HumorFlavorStep[]
   initialCaptions: FlavorCaption[]
+  stepLoadError?: string | null
 }
 
 export function StepEditor({
   flavor,
   initialSteps,
   initialCaptions,
+  stepLoadError,
 }: StepEditorProps) {
   const router = useRouter()
   const [steps, setSteps] = useState(initialSteps)
   const [captions] = useState(initialCaptions)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingStep, setEditingStep] = useState<HumorFlavorStep | null>(null)
-  const [prompt, setPrompt] = useState("")
+  const [systemPrompt, setSystemPrompt] = useState("")
+  const [userPrompt, setUserPrompt] = useState("")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const promptChainPreview = steps
+    .slice()
     .sort((a, b) => a.step_order - b.step_order)
-    .map((step, index) => `Step ${index + 1}\n${step.prompt}`)
+    .map((step, index) =>
+      [
+        `Step ${index + 1}`,
+        `System Prompt:\n${step.llm_system_prompt || ""}`,
+        `User Prompt:\n${step.llm_user_prompt || ""}`,
+      ].join("\n\n")
+    )
     .join("\n\n")
 
   function openCreateModal() {
     setEditingStep(null)
-    setPrompt("")
+    setSystemPrompt("")
+    setUserPrompt("")
     setError("")
     setModalOpen(true)
   }
 
   function openEditModal(step: HumorFlavorStep) {
     setEditingStep(step)
-    setPrompt(step.prompt)
+    setSystemPrompt(step.llm_system_prompt || "")
+    setUserPrompt(step.llm_user_prompt || "")
     setError("")
     setModalOpen(true)
   }
 
   async function saveStep() {
-    if (!prompt.trim()) {
-      setError("Prompt is required.")
+    if (!systemPrompt.trim() && !userPrompt.trim()) {
+      setError("At least one prompt is required.")
       return
     }
 
@@ -59,7 +71,10 @@ export function StepEditor({
     if (editingStep) {
       const { data, error: updateError } = await supabase
         .from("humor_flavor_steps")
-        .update({ prompt: prompt.trim() })
+        .update({
+          llm_system_prompt: systemPrompt.trim() || null,
+          llm_user_prompt: userPrompt.trim() || null,
+        })
         .eq("id", editingStep.id)
         .select("*")
         .single()
@@ -79,7 +94,8 @@ export function StepEditor({
         .from("humor_flavor_steps")
         .insert({
           humor_flavor_id: flavor.id,
-          prompt: prompt.trim(),
+          llm_system_prompt: systemPrompt.trim() || null,
+          llm_user_prompt: userPrompt.trim() || null,
           step_order: nextOrder,
         })
         .select("*")
@@ -194,6 +210,12 @@ export function StepEditor({
           </div>
         </div>
 
+        {stepLoadError ? (
+          <div className="danger-banner" style={{ marginBottom: 18 }}>
+            {stepLoadError}
+          </div>
+        ) : null}
+
         <div
           style={{
             marginBottom: 18,
@@ -255,20 +277,50 @@ export function StepEditor({
                 </div>
 
                 <div style={{ flex: 1 }}>
-                  <p
+                  <div
                     style={{
-                      margin: 0,
-                      fontSize: 14,
-                      color: "var(--text-primary)",
-                      lineHeight: 1.5,
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-word",
+                      display: "grid",
+                      gap: 10,
                     }}
                   >
-                    {step.prompt}
-                  </p>
+                    <div>
+                      <p className="muted-label" style={{ margin: "0 0 6px" }}>
+                        System Prompt
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 14,
+                          color: "var(--text-primary)",
+                          lineHeight: 1.5,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {step.llm_system_prompt || "No system prompt."}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="muted-label" style={{ margin: "0 0 6px" }}>
+                        User Prompt
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 14,
+                          color: "var(--text-primary)",
+                          lineHeight: 1.5,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {step.llm_user_prompt || "No user prompt."}
+                      </p>
+                    </div>
+                  </div>
                   <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--text-muted)" }}>
-                    Exact step text from `humor_flavor_steps.prompt`
+                    Exact stored values from `humor_flavor_steps.llm_system_prompt` and
+                    `humor_flavor_steps.llm_user_prompt`
                   </p>
                 </div>
 
@@ -407,8 +459,8 @@ export function StepEditor({
         title={editingStep ? "Edit step" : "Create step"}
         description={
           editingStep
-            ? "Edit the exact stored prompt for this step."
-            : "Add the next exact prompt in this humor flavor chain."
+            ? "Edit the exact stored system and user prompts for this step."
+            : "Add the next exact system and user prompts in this humor flavor chain."
         }
         onClose={() => {
           if (!saving) {
@@ -419,9 +471,19 @@ export function StepEditor({
         <div style={{ display: "grid", gap: 14 }}>
           <div>
             <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
-              Prompt
+              LLM System Prompt
             </label>
-            <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} />
+            <textarea
+              value={systemPrompt}
+              onChange={(event) => setSystemPrompt(event.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
+              LLM User Prompt
+            </label>
+            <textarea value={userPrompt} onChange={(event) => setUserPrompt(event.target.value)} />
           </div>
 
           {error ? <div className="danger-banner">{error}</div> : null}

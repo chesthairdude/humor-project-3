@@ -20,7 +20,8 @@ export type HumorFlavor = {
 export type HumorFlavorStep = {
   id: string
   humor_flavor_id: number
-  prompt: string
+  llm_system_prompt: string | null
+  llm_user_prompt: string | null
   step_order: number
   created_at: string
 }
