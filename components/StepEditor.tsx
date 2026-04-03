@@ -515,11 +515,11 @@ export function StepEditor({
                   background: "var(--surface)",
                 }}
               >
-                {caption.images?.image_url ? (
+                {caption.images?.url ? (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                    src={caption.images.image_url}
+                    src={caption.images.url}
                     alt=""
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />

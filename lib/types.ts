@@ -65,6 +65,6 @@ export type FlavorCaption = {
   content: string
   created_datetime_utc: string
   images: {
-    image_url: string | null
+    url: string | null
   } | null
 }
