@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 
 import { createClient } from "@/utils/supabase/client"
 
@@ -26,6 +27,7 @@ type RegisteredImageResponse = {
 }
 
 export function TestPanel({ flavorId }: TestPanelProps) {
+  const router = useRouter()
   const [imageUrl, setImageUrl] = useState("")
   const [testImageFile, setTestImageFile] = useState<File | null>(null)
   const [running, setRunning] = useState(false)
@@ -164,6 +166,7 @@ export function TestPanel({ flavorId }: TestPanelProps) {
       }
 
       setResults(data)
+      router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Request failed.")
     } finally {

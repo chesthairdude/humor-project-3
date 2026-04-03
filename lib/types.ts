@@ -62,8 +62,8 @@ export type HumorFlavorStepType = {
 
 export type FlavorCaption = {
   id: string
-  caption_content: string
-  created_at: string
+  content: string
+  created_datetime_utc: string
   images: {
     image_url: string | null
   } | null

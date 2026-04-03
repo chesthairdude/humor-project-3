@@ -43,9 +43,9 @@ export default async function FlavorDetailPage({
       .order("order_by", { ascending: true }),
     supabase
       .from("captions")
-      .select("id, caption_content, created_at, images(image_url)")
+      .select("id, content, created_datetime_utc, images(image_url)")
       .eq("humor_flavor_id", params.flavorId)
-      .order("created_at", { ascending: false })
+      .order("created_datetime_utc", { ascending: false })
       .limit(20),
     supabase.from("llm_input_types").select("id, slug, description").order("id", { ascending: true }),
     supabase.from("llm_output_types").select("id, slug, description").order("id", { ascending: true }),
@@ -65,8 +65,8 @@ export default async function FlavorDetailPage({
 
   const normalizedCaptions: FlavorCaption[] = (captions || []).map((caption) => ({
     id: caption.id,
-    caption_content: caption.caption_content,
-    created_at: caption.created_at,
+    content: caption.content,
+    created_datetime_utc: caption.created_datetime_utc,
     images: Array.isArray(caption.images) ? caption.images[0] || null : caption.images,
   }))
 

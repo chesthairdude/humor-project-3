@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Modal } from "@/components/Modal"
 import type {
@@ -65,7 +65,7 @@ export function StepEditor({
 }: StepEditorProps) {
   const router = useRouter()
   const [steps, setSteps] = useState(initialSteps)
-  const [captions] = useState(initialCaptions)
+  const [captions, setCaptions] = useState(initialCaptions)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingStep, setEditingStep] = useState<HumorFlavorStep | null>(null)
   const [systemPrompt, setSystemPrompt] = useState("")
@@ -88,6 +88,10 @@ export function StepEditor({
       ].join("\n\n")
     )
     .join("\n\n")
+
+  useEffect(() => {
+    setCaptions(initialCaptions)
+  }, [initialCaptions])
 
   function openCreateModal() {
     const nextOrder = steps.length > 0 ? Math.max(...steps.map((step) => step.order_by)) + 1 : 1
@@ -523,7 +527,7 @@ export function StepEditor({
                 ) : null}
               </div>
               <div>
-                <p style={{ margin: 0, lineHeight: 1.5 }}>{caption.caption_content}</p>
+                <p style={{ margin: 0, lineHeight: 1.5 }}>{caption.content}</p>
                 <p
                   style={{
                     margin: "8px 0 0",
@@ -531,7 +535,7 @@ export function StepEditor({
                     color: "var(--text-muted)",
                   }}
                 >
-                  {new Date(caption.created_at).toLocaleString()}
+                  {new Date(caption.created_datetime_utc).toLocaleString()}
                 </p>
               </div>
             </div>
