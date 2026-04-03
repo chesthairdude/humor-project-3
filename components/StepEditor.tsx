@@ -5,20 +5,62 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 import { Modal } from "@/components/Modal"
-import type { FlavorCaption, HumorFlavor, HumorFlavorStep } from "@/lib/types"
+import type {
+  FlavorCaption,
+  HumorFlavor,
+  HumorFlavorStep,
+  HumorFlavorStepType,
+  LlmInputType,
+  LlmModel,
+  LlmOutputType,
+} from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
 
 type StepEditorProps = {
   flavor: HumorFlavor
   initialSteps: HumorFlavorStep[]
   initialCaptions: FlavorCaption[]
+  inputTypes: LlmInputType[]
+  outputTypes: LlmOutputType[]
+  models: LlmModel[]
+  stepTypes: HumorFlavorStepType[]
   stepLoadError?: string | null
+}
+
+function getDefaultStepTypeId(stepTypes: HumorFlavorStepType[], nextOrder: number) {
+  const slug =
+    nextOrder === 1 ? "celebrity-recognition" : nextOrder === 2 ? "image-description" : "general"
+
+  return stepTypes.find((stepType) => stepType.slug === slug)?.id ?? stepTypes[0]?.id ?? 0
+}
+
+function getDefaultInputTypeId(inputTypes: LlmInputType[], stepTypeSlug?: string) {
+  const slug = stepTypeSlug === "celebrity-recognition" ? "image-and-text" : "text-only"
+  return inputTypes.find((inputType) => inputType.slug === slug)?.id ?? inputTypes[0]?.id ?? 0
+}
+
+function getDefaultOutputTypeId(outputTypes: LlmOutputType[], nextOrder: number) {
+  const slug = nextOrder >= 3 ? "array" : "string"
+  return outputTypes.find((outputType) => outputType.slug === slug)?.id ?? outputTypes[0]?.id ?? 0
+}
+
+function getDefaultModelId(models: LlmModel[]) {
+  return (
+    models.find((model) => model.provider_model_id === "gpt-4.1-2025-04-14")?.id ??
+    models.find((model) => model.name === "GPT-4.1")?.id ??
+    models[0]?.id ??
+    0
+  )
 }
 
 export function StepEditor({
   flavor,
   initialSteps,
   initialCaptions,
+  inputTypes,
+  outputTypes,
+  models,
+  stepTypes,
   stepLoadError,
 }: StepEditorProps) {
   const router = useRouter()
@@ -28,6 +70,11 @@ export function StepEditor({
   const [editingStep, setEditingStep] = useState<HumorFlavorStep | null>(null)
   const [systemPrompt, setSystemPrompt] = useState("")
   const [userPrompt, setUserPrompt] = useState("")
+  const [description, setDescription] = useState("")
+  const [llmInputTypeId, setLlmInputTypeId] = useState(0)
+  const [llmOutputTypeId, setLlmOutputTypeId] = useState(0)
+  const [llmModelId, setLlmModelId] = useState(0)
+  const [stepTypeId, setStepTypeId] = useState(0)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const promptChainPreview = steps
@@ -43,9 +90,18 @@ export function StepEditor({
     .join("\n\n")
 
   function openCreateModal() {
+    const nextOrder = steps.length > 0 ? Math.max(...steps.map((step) => step.order_by)) + 1 : 1
+    const defaultStepTypeId = getDefaultStepTypeId(stepTypes, nextOrder)
+    const defaultStepTypeSlug = stepTypes.find((stepType) => stepType.id === defaultStepTypeId)?.slug
+
     setEditingStep(null)
     setSystemPrompt("")
     setUserPrompt("")
+    setDescription("")
+    setStepTypeId(defaultStepTypeId)
+    setLlmInputTypeId(getDefaultInputTypeId(inputTypes, defaultStepTypeSlug))
+    setLlmOutputTypeId(getDefaultOutputTypeId(outputTypes, nextOrder))
+    setLlmModelId(getDefaultModelId(models))
     setError("")
     setModalOpen(true)
   }
@@ -54,13 +110,29 @@ export function StepEditor({
     setEditingStep(step)
     setSystemPrompt(step.llm_system_prompt || "")
     setUserPrompt(step.llm_user_prompt || "")
+    setDescription(step.description || "")
+    setLlmInputTypeId(step.llm_input_type_id || inputTypes[0]?.id || 0)
+    setLlmOutputTypeId(step.llm_output_type_id || outputTypes[0]?.id || 0)
+    setLlmModelId(step.llm_model_id || models[0]?.id || 0)
+    setStepTypeId(step.humor_flavor_step_type_id || stepTypes[0]?.id || 0)
     setError("")
     setModalOpen(true)
+  }
+
+  function handleStepTypeChange(nextStepTypeId: number) {
+    const nextStepType = stepTypes.find((stepType) => stepType.id === nextStepTypeId)
+    setStepTypeId(nextStepTypeId)
+    setLlmInputTypeId(getDefaultInputTypeId(inputTypes, nextStepType?.slug))
   }
 
   async function saveStep() {
     if (!systemPrompt.trim() && !userPrompt.trim()) {
       setError("At least one prompt is required.")
+      return
+    }
+
+    if (!llmInputTypeId || !llmOutputTypeId || !llmModelId || !stepTypeId) {
+      setError("Input type, output type, model, and step type are all required.")
       return
     }
 
@@ -74,6 +146,11 @@ export function StepEditor({
         .update({
           llm_system_prompt: systemPrompt.trim() || null,
           llm_user_prompt: userPrompt.trim() || null,
+          description: description.trim() || null,
+          llm_input_type_id: llmInputTypeId,
+          llm_output_type_id: llmOutputTypeId,
+          llm_model_id: llmModelId,
+          humor_flavor_step_type_id: stepTypeId,
           modified_datetime_utc: new Date().toISOString(),
         })
         .eq("id", editingStep.id)
@@ -97,7 +174,12 @@ export function StepEditor({
           humor_flavor_id: flavor.id,
           llm_system_prompt: systemPrompt.trim() || null,
           llm_user_prompt: userPrompt.trim() || null,
+          description: description.trim() || null,
           order_by: nextOrder,
+          llm_input_type_id: llmInputTypeId,
+          llm_output_type_id: llmOutputTypeId,
+          llm_model_id: llmModelId,
+          humor_flavor_step_type_id: stepTypeId,
           created_datetime_utc: new Date().toISOString(),
           modified_datetime_utc: new Date().toISOString(),
         })
@@ -472,6 +554,85 @@ export function StepEditor({
         }}
       >
         <div style={{ display: "grid", gap: 14 }}>
+          <div>
+            <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
+              Step Description
+            </label>
+            <input value={description} onChange={(event) => setDescription(event.target.value)} />
+          </div>
+
+          <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+            <div>
+              <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
+                Step Type
+              </label>
+              <select
+                value={stepTypeId}
+                onChange={(event) => handleStepTypeChange(Number(event.target.value))}
+                style={{ width: "100%" }}
+              >
+                {stepTypes.map((stepType) => (
+                  <option key={stepType.id} value={stepType.id}>
+                    {stepType.slug}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
+                Model
+              </label>
+              <select
+                value={llmModelId}
+                onChange={(event) => setLlmModelId(Number(event.target.value))}
+                style={{ width: "100%" }}
+              >
+                {models.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+            <div>
+              <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
+                Input Type
+              </label>
+              <select
+                value={llmInputTypeId}
+                onChange={(event) => setLlmInputTypeId(Number(event.target.value))}
+                style={{ width: "100%" }}
+              >
+                {inputTypes.map((inputType) => (
+                  <option key={inputType.id} value={inputType.id}>
+                    {inputType.slug}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
+                Output Type
+              </label>
+              <select
+                value={llmOutputTypeId}
+                onChange={(event) => setLlmOutputTypeId(Number(event.target.value))}
+                style={{ width: "100%" }}
+              >
+                {outputTypes.map((outputType) => (
+                  <option key={outputType.id} value={outputType.id}>
+                    {outputType.slug}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div>
             <label className="muted-label" style={{ display: "block", marginBottom: 8 }}>
               LLM System Prompt

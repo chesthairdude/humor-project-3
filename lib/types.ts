@@ -35,6 +35,31 @@ export type HumorFlavorStep = {
   modified_datetime_utc?: string | null
 }
 
+export type LlmInputType = {
+  id: number
+  slug: string
+  description: string
+}
+
+export type LlmOutputType = {
+  id: number
+  slug: string
+  description: string
+}
+
+export type LlmModel = {
+  id: number
+  name: string
+  provider_model_id: string
+  is_temperature_supported: boolean
+}
+
+export type HumorFlavorStepType = {
+  id: number
+  slug: string
+  description: string
+}
+
 export type FlavorCaption = {
   id: string
   caption_content: string
