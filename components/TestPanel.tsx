@@ -15,6 +15,16 @@ type TestResult = {
   [key: string]: unknown
 }
 
+type PresignedUploadResponse = {
+  presignedUrl: string
+  cdnUrl: string
+}
+
+type RegisteredImageResponse = {
+  imageId: string
+  now: number
+}
+
 export function TestPanel({ flavorId }: TestPanelProps) {
   const [imageUrl, setImageUrl] = useState("")
   const [testImageFile, setTestImageFile] = useState<File | null>(null)
@@ -39,6 +49,71 @@ export function TestPanel({ flavorId }: TestPanelProps) {
     })
   }
 
+  async function parseJsonResponse<T>(response: Response): Promise<T | null> {
+    const text = await response.text()
+    return text ? (JSON.parse(text) as T) : null
+  }
+
+  async function createPipelineImageFromUrl(imageUrl: string, accessToken: string) {
+    const response = await fetch(`${API_BASE}/pipeline/upload-image-from-url`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imageUrl,
+        isCommonUse: false,
+      }),
+    })
+
+    const data = await parseJsonResponse<RegisteredImageResponse & { message?: string }>(response)
+
+    if (!response.ok || !data?.imageId) {
+      throw new Error(data?.message || `API error: ${response.status} ${response.statusText}`)
+    }
+
+    return data.imageId
+  }
+
+  async function createPipelineImageFromFile(file: File, accessToken: string) {
+    const presignedResponse = await fetch(`${API_BASE}/pipeline/generate-presigned-url`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contentType: file.type || "image/jpeg",
+      }),
+    })
+
+    const presignedData = await parseJsonResponse<PresignedUploadResponse & { message?: string }>(
+      presignedResponse
+    )
+
+    if (!presignedResponse.ok || !presignedData?.presignedUrl || !presignedData?.cdnUrl) {
+      throw new Error(
+        presignedData?.message ||
+          `API error: ${presignedResponse.status} ${presignedResponse.statusText}`
+      )
+    }
+
+    const uploadResponse = await fetch(presignedData.presignedUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": file.type || "image/jpeg",
+      },
+      body: file,
+    })
+
+    if (!uploadResponse.ok) {
+      throw new Error(`Upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`)
+    }
+
+    return createPipelineImageFromUrl(presignedData.cdnUrl, accessToken)
+  }
+
   async function runTest() {
     if (!imageUrl && !testImageFile) {
       return
@@ -54,32 +129,31 @@ export function TestPanel({ flavorId }: TestPanelProps) {
         data: { session },
       } = await supabase.auth.getSession()
 
-      const payload: Record<string, unknown> = {
-        flavor_id: flavorId,
+      if (!session?.access_token) {
+        throw new Error("You must be signed in to generate captions.")
       }
 
-      if (imageUrl) {
-        payload.image_url = imageUrl
-      }
+      let imageId = ""
 
       if (testImageFile) {
-        payload.image_data_url = await fileToDataUrl(testImageFile)
-        payload.image_filename = testImageFile.name
+        imageId = await createPipelineImageFromFile(testImageFile, session.access_token)
+      } else if (imageUrl) {
+        imageId = await createPipelineImageFromUrl(imageUrl, session.access_token)
       }
 
-      const response = await fetch(`${API_BASE}/captions/generate`, {
+      const response = await fetch(`${API_BASE}/pipeline/generate-captions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(session?.access_token
-            ? { Authorization: `Bearer ${session.access_token}` }
-            : {}),
+          Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          imageId,
+          humorFlavorId: Number(flavorId),
+        }),
       })
 
-      const text = await response.text()
-      const data = text ? (JSON.parse(text) as TestResult) : {}
+      const data = (await parseJsonResponse<TestResult & { message?: string }>(response)) || {}
 
       if (!response.ok) {
         throw new Error(
@@ -261,8 +335,8 @@ export function TestPanel({ flavorId }: TestPanelProps) {
       ) : null}
 
       <p style={{ margin: "auto 0 0", fontSize: 12, color: "var(--text-muted)" }}>
-        The API docs endpoint returned 405 during discovery, so this panel sends a best-effort
-        payload to `/captions/generate` and includes the Supabase access token when available.
+        This panel follows the pipeline API flow: register an image, then call
+        `/pipeline/generate-captions` with your selected flavor.
       </p>
     </div>
   )
