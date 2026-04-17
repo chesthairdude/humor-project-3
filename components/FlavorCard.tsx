@@ -57,7 +57,7 @@ export function FlavorCard({
           marginTop: "auto",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "flex-end",
+          alignItems: "center",
           gap: 12,
         }}
       >
