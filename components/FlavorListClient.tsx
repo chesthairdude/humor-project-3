@@ -234,46 +234,43 @@ export function FlavorListClient({
           }}
         >
           {flavors.map((flavor) => (
-            <div key={flavor.id} style={{ position: "relative" }}>
+            <div
+              key={flavor.id}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
               <FlavorCard flavor={flavor} />
-              <button
-                onClick={(event) => {
-                  event.stopPropagation()
-                  duplicateFlavor(flavor)
-                }}
-                disabled={duplicatingFlavorId === flavor.id}
-                className="secondary-button"
-                style={{
-                  position: "absolute",
-                  top: 14,
-                  right: 84,
-                  padding: "6px 10px",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: duplicatingFlavorId === flavor.id ? "default" : "pointer",
-                }}
-              >
-                {duplicatingFlavorId === flavor.id ? "Duplicating..." : "Duplicate"}
-              </button>
-              <button
-                onClick={(event) => {
-                  event.stopPropagation()
-                  deleteFlavor(flavor.id)
-                }}
-                className="secondary-button"
-                style={{
-                  position: "absolute",
-                  top: 14,
-                  right: 14,
-                  padding: "6px 10px",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  color: "var(--accent-negative)",
-                }}
-              >
-                Delete
-              </button>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                <button
+                  onClick={() => duplicateFlavor(flavor)}
+                  disabled={duplicatingFlavorId === flavor.id}
+                  className="secondary-button"
+                  style={{
+                    padding: "6px 10px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: duplicatingFlavorId === flavor.id ? "default" : "pointer",
+                  }}
+                >
+                  {duplicatingFlavorId === flavor.id ? "Duplicating..." : "Duplicate"}
+                </button>
+                <button
+                  onClick={() => deleteFlavor(flavor.id)}
+                  className="secondary-button"
+                  style={{
+                    padding: "6px 10px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    color: "var(--accent-negative)",
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>

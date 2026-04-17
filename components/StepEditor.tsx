@@ -27,6 +27,22 @@ type StepEditorProps = {
   stepLoadError?: string | null
 }
 
+function getDuplicateSlug(sourceSlug: string, existingSlugs: string[]) {
+  const normalizedSlugs = new Set(existingSlugs.map((slug) => slug.trim().toLowerCase()))
+  const baseSlug = `${sourceSlug.trim()} copy`
+
+  if (!normalizedSlugs.has(baseSlug.toLowerCase())) {
+    return baseSlug
+  }
+
+  let suffix = 2
+  while (normalizedSlugs.has(`${baseSlug} ${suffix}`.toLowerCase())) {
+    suffix += 1
+  }
+
+  return `${baseSlug} ${suffix}`
+}
+
 function getDefaultStepTypeId(stepTypes: HumorFlavorStepType[], nextOrder: number) {
   const slug =
     nextOrder === 1 ? "celebrity-recognition" : nextOrder === 2 ? "image-description" : "general"
@@ -76,6 +92,8 @@ export function StepEditor({
   const [llmModelId, setLlmModelId] = useState(0)
   const [stepTypeId, setStepTypeId] = useState(0)
   const [saving, setSaving] = useState(false)
+  const [duplicatingFlavor, setDuplicatingFlavor] = useState(false)
+  const [deletingFlavor, setDeletingFlavor] = useState(false)
   const [error, setError] = useState("")
   const promptChainPreview = steps
     .slice()
@@ -259,6 +277,93 @@ export function StepEditor({
     router.refresh()
   }
 
+  async function duplicateFlavor() {
+    setDuplicatingFlavor(true)
+    const supabase = createClient()
+    const timestamp = new Date().toISOString()
+
+    const { data: flavors, error: flavorsError } = await supabase.from("humor_flavors").select("slug")
+
+    if (flavorsError) {
+      setDuplicatingFlavor(false)
+      window.alert(flavorsError.message)
+      return
+    }
+
+    const nextSlug = getDuplicateSlug(
+      flavor.slug,
+      (flavors || []).map((currentFlavor) => currentFlavor.slug)
+    )
+
+    const { data: createdFlavor, error: createError } = await supabase
+      .from("humor_flavors")
+      .insert({
+        slug: nextSlug,
+        description: flavor.description,
+        created_datetime_utc: timestamp,
+        modified_datetime_utc: timestamp,
+      })
+      .select("id")
+      .single()
+
+    if (createError || !createdFlavor) {
+      setDuplicatingFlavor(false)
+      window.alert(createError?.message || "Failed to duplicate flavor.")
+      return
+    }
+
+    if (steps.length > 0) {
+      const { error: stepInsertError } = await supabase.from("humor_flavor_steps").insert(
+        steps.map((step) => ({
+          humor_flavor_id: createdFlavor.id,
+          order_by: step.order_by,
+          llm_system_prompt: step.llm_system_prompt,
+          llm_user_prompt: step.llm_user_prompt,
+          description: step.description,
+          llm_temperature: step.llm_temperature,
+          llm_input_type_id: step.llm_input_type_id,
+          llm_output_type_id: step.llm_output_type_id,
+          llm_model_id: step.llm_model_id,
+          humor_flavor_step_type_id: step.humor_flavor_step_type_id,
+          created_datetime_utc: timestamp,
+          modified_datetime_utc: timestamp,
+        }))
+      )
+
+      if (stepInsertError) {
+        await supabase.from("humor_flavor_steps").delete().eq("humor_flavor_id", createdFlavor.id)
+        await supabase.from("humor_flavors").delete().eq("id", createdFlavor.id)
+        setDuplicatingFlavor(false)
+        window.alert(stepInsertError.message)
+        return
+      }
+    }
+
+    setDuplicatingFlavor(false)
+    router.push(`/flavors/${createdFlavor.id}`)
+    router.refresh()
+  }
+
+  async function deleteFlavor() {
+    const confirmed = window.confirm("Delete this flavor and its steps?")
+    if (!confirmed) {
+      return
+    }
+
+    setDeletingFlavor(true)
+    const supabase = createClient()
+    const { error: deleteError } = await supabase.from("humor_flavors").delete().eq("id", flavor.id)
+
+    if (deleteError) {
+      setDeletingFlavor(false)
+      window.alert(deleteError.message)
+      return
+    }
+
+    router.push("/flavors")
+    router.refresh()
+  }
+
   return (
     <>
       <div className="glass-panel" style={{ borderRadius: 24, padding: 24 }}>
@@ -282,6 +387,27 @@ export function StepEditor({
           </div>
 
           <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <button
+              onClick={duplicateFlavor}
+              disabled={duplicatingFlavor || deletingFlavor}
+              className="secondary-button"
+              style={{ padding: "12px 16px", fontWeight: 600, cursor: "pointer" }}
+            >
+              {duplicatingFlavor ? "Duplicating..." : "Duplicate"}
+            </button>
+            <button
+              onClick={deleteFlavor}
+              disabled={duplicatingFlavor || deletingFlavor}
+              className="secondary-button"
+              style={{
+                padding: "12px 16px",
+                fontWeight: 600,
+                cursor: "pointer",
+                color: "var(--accent-negative)",
+              }}
+            >
+              {deletingFlavor ? "Deleting..." : "Delete"}
+            </button>
             <Link
               href={`/flavors/${flavor.id}/edit`}
               className="secondary-button"
