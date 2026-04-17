@@ -8,6 +8,22 @@ import { Modal } from "@/components/Modal"
 import type { HumorFlavor } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
 
+function getDuplicateSlug(sourceSlug: string, existingSlugs: string[]) {
+  const normalizedSlugs = new Set(existingSlugs.map((slug) => slug.trim().toLowerCase()))
+  const baseSlug = `${sourceSlug.trim()} copy`
+
+  if (!normalizedSlugs.has(baseSlug.toLowerCase())) {
+    return baseSlug
+  }
+
+  let suffix = 2
+  while (normalizedSlugs.has(`${baseSlug} ${suffix}`.toLowerCase())) {
+    suffix += 1
+  }
+
+  return `${baseSlug} ${suffix}`
+}
+
 export function FlavorListClient({
   initialFlavors,
   loadError,
@@ -21,6 +37,7 @@ export function FlavorListClient({
   const [slug, setSlug] = useState("")
   const [description, setDescription] = useState("")
   const [saving, setSaving] = useState(false)
+  const [duplicatingFlavorId, setDuplicatingFlavorId] = useState<number | null>(null)
   const [error, setError] = useState("")
 
   async function createFlavor() {
@@ -72,6 +89,86 @@ export function FlavorListClient({
     }
 
     setFlavors((current) => current.filter((flavor) => flavor.id !== id))
+    router.refresh()
+  }
+
+  async function duplicateFlavor(flavor: HumorFlavor) {
+    setDuplicatingFlavorId(flavor.id)
+    setError("")
+    const supabase = createClient()
+    const timestamp = new Date().toISOString()
+    const nextSlug = getDuplicateSlug(
+      flavor.slug,
+      flavors.map((currentFlavor) => currentFlavor.slug)
+    )
+
+    const { data: createdFlavor, error: createError } = await supabase
+      .from("humor_flavors")
+      .insert({
+        slug: nextSlug,
+        description: flavor.description,
+        created_datetime_utc: timestamp,
+        modified_datetime_utc: timestamp,
+      })
+      .select("id, slug, description, created_datetime_utc, modified_datetime_utc")
+      .single()
+
+    if (createError || !createdFlavor) {
+      setDuplicatingFlavorId(null)
+      window.alert(createError?.message || "Failed to duplicate flavor.")
+      return
+    }
+
+    const { data: sourceSteps, error: sourceStepsError } = await supabase
+      .from("humor_flavor_steps")
+      .select(
+        "order_by, llm_system_prompt, llm_user_prompt, description, llm_temperature, llm_input_type_id, llm_output_type_id, llm_model_id, humor_flavor_step_type_id"
+      )
+      .eq("humor_flavor_id", flavor.id)
+      .order("order_by", { ascending: true })
+
+    if (sourceStepsError) {
+      await supabase.from("humor_flavors").delete().eq("id", createdFlavor.id)
+      setDuplicatingFlavorId(null)
+      window.alert(sourceStepsError.message)
+      return
+    }
+
+    if ((sourceSteps || []).length > 0) {
+      const { error: stepInsertError } = await supabase.from("humor_flavor_steps").insert(
+        (sourceSteps || []).map((step) => ({
+          humor_flavor_id: createdFlavor.id,
+          order_by: step.order_by,
+          llm_system_prompt: step.llm_system_prompt,
+          llm_user_prompt: step.llm_user_prompt,
+          description: step.description,
+          llm_temperature: step.llm_temperature,
+          llm_input_type_id: step.llm_input_type_id,
+          llm_output_type_id: step.llm_output_type_id,
+          llm_model_id: step.llm_model_id,
+          humor_flavor_step_type_id: step.humor_flavor_step_type_id,
+          created_datetime_utc: timestamp,
+          modified_datetime_utc: timestamp,
+        }))
+      )
+
+      if (stepInsertError) {
+        await supabase.from("humor_flavor_steps").delete().eq("humor_flavor_id", createdFlavor.id)
+        await supabase.from("humor_flavors").delete().eq("id", createdFlavor.id)
+        setDuplicatingFlavorId(null)
+        window.alert(stepInsertError.message)
+        return
+      }
+    }
+
+    setFlavors((current) => [
+      {
+        ...createdFlavor,
+        step_count: sourceSteps?.length || 0,
+      },
+      ...current,
+    ])
+    setDuplicatingFlavorId(null)
     router.refresh()
   }
 
@@ -139,6 +236,25 @@ export function FlavorListClient({
           {flavors.map((flavor) => (
             <div key={flavor.id} style={{ position: "relative" }}>
               <FlavorCard flavor={flavor} />
+              <button
+                onClick={(event) => {
+                  event.stopPropagation()
+                  duplicateFlavor(flavor)
+                }}
+                disabled={duplicatingFlavorId === flavor.id}
+                className="secondary-button"
+                style={{
+                  position: "absolute",
+                  top: 14,
+                  right: 84,
+                  padding: "6px 10px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: duplicatingFlavorId === flavor.id ? "default" : "pointer",
+                }}
+              >
+                {duplicatingFlavorId === flavor.id ? "Duplicating..." : "Duplicate"}
+              </button>
               <button
                 onClick={(event) => {
                   event.stopPropagation()
