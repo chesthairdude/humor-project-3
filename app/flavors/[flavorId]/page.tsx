@@ -45,8 +45,7 @@ export default async function FlavorDetailPage({
       .from("captions")
       .select("id, content, created_datetime_utc, images(url)")
       .eq("humor_flavor_id", params.flavorId)
-      .order("created_datetime_utc", { ascending: false })
-      .limit(20),
+      .order("created_datetime_utc", { ascending: false }),
     supabase.from("llm_input_types").select("id, slug, description").order("id", { ascending: true }),
     supabase.from("llm_output_types").select("id, slug, description").order("id", { ascending: true }),
     supabase

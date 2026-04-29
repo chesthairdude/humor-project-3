@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { RecentOutputPanel } from "@/components/RecentOutputPanel"
 import { TestPanel } from "@/components/TestPanel"
@@ -23,26 +23,33 @@ export function FlavorDetailSidebar({
   flavorId: string
   initialCaptions: FlavorCaption[]
 }) {
-  const [captions, setCaptions] = useState(initialCaptions)
+  const [historicalCaptions, setHistoricalCaptions] = useState(initialCaptions)
+  const [loadingHistory, setLoadingHistory] = useState(true)
 
-  async function refreshCaptions() {
+  const loadHistoricalCaptions = useCallback(async () => {
+    setLoadingHistory(true)
     const supabase = createClient()
     const { data, error } = await supabase
       .from("captions")
       .select("id, content, created_datetime_utc, images(url)")
       .eq("humor_flavor_id", flavorId)
       .order("created_datetime_utc", { ascending: false })
-      .limit(20)
 
     if (!error) {
-      setCaptions(normalizeCaptions(data))
+      setHistoricalCaptions(normalizeCaptions(data))
     }
-  }
+
+    setLoadingHistory(false)
+  }, [flavorId])
+
+  useEffect(() => {
+    loadHistoricalCaptions()
+  }, [loadHistoricalCaptions])
 
   return (
     <div className="detail-sidebar">
-      <TestPanel flavorId={flavorId} onGenerationComplete={refreshCaptions} />
-      <RecentOutputPanel captions={captions} />
+      <TestPanel flavorId={flavorId} onGenerationComplete={loadHistoricalCaptions} />
+      <RecentOutputPanel captions={historicalCaptions} loadingHistory={loadingHistory} />
     </div>
   )
 }

@@ -2,7 +2,13 @@
 
 import type { FlavorCaption } from "@/lib/types"
 
-export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
+export function RecentOutputPanel({
+  captions,
+  loadingHistory,
+}: {
+  captions: FlavorCaption[]
+  loadingHistory: boolean
+}) {
   return (
     <div
       className="glass-panel recent-output-panel"
@@ -29,14 +35,25 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
           paddingRight: 4,
         }}
       >
-        {captions.length === 0 ? (
+        {loadingHistory ? (
+          <div
+            style={{
+              fontSize: 13,
+              color: "var(--text-muted)",
+              textAlign: "center",
+              margin: "16px 0",
+            }}
+          >
+            Loading captions...
+          </div>
+        ) : captions.length === 0 ? (
           <div
             style={{
               fontSize: 13,
               color: "var(--text-muted)",
               fontStyle: "italic",
               textAlign: "center",
-              marginTop: 24,
+              margin: "16px 0",
             }}
           >
             No captions generated yet for this flavor.

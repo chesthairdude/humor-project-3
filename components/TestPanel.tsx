@@ -276,18 +276,45 @@ export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
         {error ? <div className="danger-banner" style={{ fontSize: 13 }}>{error}</div> : null}
 
         {renderedResults.length > 0 ? (
-          <div
-            style={{
-              padding: "14px 16px",
-              borderRadius: 10,
-              background: "var(--input-bg)",
-              border: "1px solid var(--border)",
-              fontSize: 14,
-              color: "var(--text-primary)",
-              lineHeight: 1.5,
-            }}
-          >
-            Caption generation completed successfully.
+          <div style={{ marginTop: 4 }}>
+            <p
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                color: "var(--text-muted)",
+                margin: "0 0 8px",
+              }}
+            >
+              Just Generated
+            </p>
+            {renderedResults.map((caption, index) => (
+              <div
+                key={index}
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  background: "var(--input-bg)",
+                  border: "1px solid var(--border)",
+                  fontSize: 13,
+                  color: "var(--text-primary)",
+                  lineHeight: 1.5,
+                  marginBottom: 8,
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                }}
+              >
+                {typeof caption === "string"
+                  ? caption
+                  : typeof caption === "object" &&
+                      caption !== null &&
+                      "caption_content" in caption &&
+                      typeof caption.caption_content === "string"
+                    ? caption.caption_content
+                    : JSON.stringify(caption)}
+              </div>
+            ))}
           </div>
         ) : null}
       </div>
