@@ -345,15 +345,14 @@ export function StepEditor({
       <div className="glass-panel" style={{ borderRadius: 24, padding: 24 }}>
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1fr) auto",
             gap: 16,
-            alignItems: "flex-start",
-            flexWrap: "wrap",
+            alignItems: "start",
             marginBottom: 22,
           }}
         >
-          <div style={{ display: "grid", gap: 14, flex: "1 1 420px", minWidth: 0 }}>
+          <div style={{ display: "grid", gap: 14, minWidth: 0 }}>
             <div>
               <p className="muted-label" style={{ margin: "0 0 8px" }}>
                 Prompt Chain
@@ -382,7 +381,15 @@ export function StepEditor({
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
+              justifyContent: "flex-end",
+              flexWrap: "wrap",
+            }}
+          >
             <button
               onClick={duplicateFlavor}
               disabled={duplicatingFlavor || deletingFlavor}

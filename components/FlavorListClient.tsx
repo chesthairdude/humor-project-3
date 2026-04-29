@@ -312,13 +312,12 @@ export function FlavorListClient({
                       event.stopPropagation()
                       deleteFlavor(flavor.id)
                     }}
-                    className="secondary-button"
+                    className="danger-button"
                     style={{
                       padding: "6px 10px",
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer",
-                      color: "var(--accent-negative)",
                     }}
                   >
                     Delete
