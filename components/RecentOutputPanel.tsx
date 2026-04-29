@@ -40,12 +40,13 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
             key={caption.id}
             style={{
               display: "grid",
-              gridTemplateColumns: "96px 1fr",
+              gridTemplateColumns: "96px minmax(0, 1fr)",
               gap: 14,
               padding: 14,
               borderRadius: 14,
               background: "var(--input-bg)",
               border: "1px solid var(--border)",
+              alignItems: "start",
             }}
           >
             <div
@@ -68,8 +69,18 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
                 </>
               ) : null}
             </div>
-            <div>
-              <p style={{ margin: 0, lineHeight: 1.5 }}>{caption.content}</p>
+            <div style={{ minWidth: 0 }}>
+              <p
+                style={{
+                  margin: 0,
+                  lineHeight: 1.5,
+                  whiteSpace: "pre-wrap",
+                  overflowWrap: "anywhere",
+                  wordBreak: "break-word",
+                }}
+              >
+                {caption.content}
+              </p>
               <p
                 style={{
                   margin: "8px 0 0",

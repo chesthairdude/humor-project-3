@@ -312,28 +312,18 @@ export function TestPanel({ flavorId }: TestPanelProps) {
       {error ? <div className="danger-banner" style={{ fontSize: 13 }}>{error}</div> : null}
 
       {renderedResults.length > 0 ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, overflowY: "auto" }}>
-          <p className="muted-label" style={{ margin: 0 }}>
-            Generated Captions
-          </p>
-          {renderedResults.map((caption, index) => (
-            <div
-              key={index}
-              style={{
-                padding: "14px 16px",
-                borderRadius: 10,
-                background: "var(--input-bg)",
-                border: "1px solid var(--border)",
-                fontSize: 14,
-                color: "var(--text-primary)",
-                lineHeight: 1.5,
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-word",
-              }}
-            >
-              {typeof caption === "string" ? caption : JSON.stringify(caption, null, 2)}
-            </div>
-          ))}
+        <div
+          style={{
+            padding: "14px 16px",
+            borderRadius: 10,
+            background: "var(--input-bg)",
+            border: "1px solid var(--border)",
+            fontSize: 14,
+            color: "var(--text-primary)",
+            lineHeight: 1.5,
+          }}
+        >
+          Caption generation completed successfully.
         </div>
       ) : null}
 
