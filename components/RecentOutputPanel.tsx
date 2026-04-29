@@ -7,31 +7,45 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
     <div
       className="glass-panel recent-output-panel"
       style={{
-        borderRadius: 24,
-        padding: 24,
+        padding: "20px 24px",
+        borderRadius: 16,
+        flex: 1,
         display: "flex",
         flexDirection: "column",
         minHeight: 0,
+        overflow: "hidden",
       }}
     >
-      <div style={{ marginBottom: 16 }}>
-        <p className="muted-label" style={{ margin: "0 0 8px" }}>
+      <div style={{ flexShrink: 0, marginBottom: 16 }}>
+        <p className="muted-label" style={{ margin: "0 0 4px" }}>
           Recent Output
         </p>
-        <h2 style={{ margin: 0, fontSize: 22 }}>Captions Produced by This Flavor</h2>
+        <h2 style={{ margin: 0, fontSize: 20 }}>Captions Produced by This Flavor</h2>
       </div>
 
-      <div className="recent-output-list" style={{ display: "grid", gap: 12, minHeight: 0 }}>
+      <div
+        className="recent-output-list"
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          paddingRight: 4,
+        }}
+      >
         {captions.length === 0 ? (
           <div
             style={{
-              padding: 18,
-              borderRadius: 14,
-              border: "1px dashed var(--input-border)",
-              color: "var(--text-secondary)",
+              fontSize: 13,
+              color: "var(--text-muted)",
+              fontStyle: "italic",
+              textAlign: "center",
+              marginTop: 24,
             }}
           >
-            No generated captions recorded for this flavor yet.
+            No captions generated yet for this flavor.
           </div>
         ) : null}
 
@@ -39,23 +53,23 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
           <div
             key={caption.id}
             style={{
-              display: "grid",
-              gridTemplateColumns: "96px minmax(0, 1fr)",
-              gap: 14,
-              padding: 14,
-              borderRadius: 14,
+              display: "flex",
+              gap: 12,
+              alignItems: "flex-start",
+              padding: 12,
+              borderRadius: 10,
               background: "var(--input-bg)",
               border: "1px solid var(--border)",
-              alignItems: "start",
             }}
           >
             <div
               style={{
-                width: 96,
-                height: 72,
-                borderRadius: 10,
+                width: 64,
+                height: 64,
+                borderRadius: 8,
                 overflow: "hidden",
                 background: "var(--surface)",
+                flexShrink: 0,
               }}
             >
               {caption.images?.url ? (
@@ -64,7 +78,7 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
                   <img
                     src={caption.images.url}
                     alt=""
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{ width: "100%", height: "100%", borderRadius: 8, objectFit: "cover" }}
                   />
                 </>
               ) : null}
@@ -73,6 +87,8 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
               <p
                 style={{
                   margin: 0,
+                  fontSize: 13,
+                  color: "var(--text-primary)",
                   lineHeight: 1.5,
                   whiteSpace: "pre-wrap",
                   overflowWrap: "anywhere",
@@ -84,7 +100,7 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
               <p
                 style={{
                   margin: "8px 0 0",
-                  fontSize: 12,
+                  fontSize: 11,
                   color: "var(--text-muted)",
                 }}
               >

@@ -181,158 +181,184 @@ export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
 
   return (
     <div
-      className="glass-panel"
+      className="glass-panel test-panel"
       style={{
-        padding: 24,
-        borderRadius: 24,
+        padding: "20px 24px",
+        borderRadius: 16,
+        flex: "0 0 60%",
         display: "flex",
         flexDirection: "column",
-        gap: 16,
         minHeight: 0,
+        overflow: "hidden",
       }}
     >
-      <div>
-        <p className="muted-label" style={{ margin: "0 0 8px" }}>
+      <div style={{ flexShrink: 0, marginBottom: 16 }}>
+        <p className="muted-label" style={{ margin: "0 0 4px" }}>
           Live Test
         </p>
-        <h2 style={{ fontSize: 22, margin: 0 }}>Test Flavor</h2>
+        <h2 style={{ fontSize: 20, margin: 0 }}>Test Flavor</h2>
       </div>
 
-      <div>
-        <label
-          style={{
-            fontSize: 12,
-            fontWeight: 600,
-            color: "var(--text-secondary)",
-            display: "block",
-            marginBottom: 6,
-          }}
-        >
-          Image URL
-        </label>
-        <input
-          type="text"
-          placeholder="https://..."
-          value={imageUrl}
-          onChange={(event) => {
-            setImageUrl(event.target.value)
-            if (event.target.value) {
-              setTestImageFile(null)
-            }
-          }}
-          style={{ fontSize: 14 }}
-        />
-      </div>
-
-      <div style={{ textAlign: "center", color: "var(--text-muted)", fontSize: 12 }}>or</div>
-
-      <label
+      <div
         style={{
+          flex: 1,
+          overflowY: "auto",
+          minHeight: 0,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: 80,
-          borderRadius: 12,
-          border: "2px dashed var(--input-border)",
-          background: "var(--input-bg)",
-          cursor: "pointer",
-          fontSize: 13,
-          color: "var(--text-secondary)",
-          padding: 14,
-          textAlign: "center",
+          flexDirection: "column",
+          gap: 12,
+          paddingRight: 4,
         }}
       >
-        {testImageFile ? testImageFile.name : "📎 Upload test image"}
-        <input
-          type="file"
-          accept="image/*"
-          style={{ display: "none" }}
-          onChange={(event) => {
-            const file = event.target.files?.[0] || null
-            setTestImageFile(file)
-            if (file) {
-              setImageUrl("")
-            }
-          }}
-        />
-      </label>
+        <div>
+          <label
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              display: "block",
+              marginBottom: 6,
+            }}
+          >
+            Image URL
+          </label>
+          <input
+            type="text"
+            placeholder="https://..."
+            value={imageUrl}
+            onChange={(event) => {
+              setImageUrl(event.target.value)
+              if (event.target.value) {
+                setTestImageFile(null)
+              }
+            }}
+            style={{ fontSize: 14 }}
+          />
+        </div>
 
-      {previewUrl ? (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={previewUrl}
-            alt="Selected preview"
+        <div style={{ textAlign: "center", color: "var(--text-muted)", fontSize: 12 }}>or</div>
+
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 80,
+            borderRadius: 12,
+            border: "2px dashed var(--input-border)",
+            background: "var(--input-bg)",
+            cursor: "pointer",
+            fontSize: 13,
+            color: "var(--text-secondary)",
+            padding: 14,
+            textAlign: "center",
+          }}
+        >
+          {testImageFile ? testImageFile.name : "📎 Upload test image"}
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(event) => {
+              const file = event.target.files?.[0] || null
+              setTestImageFile(file)
+              if (file) {
+                setImageUrl("")
+              }
+            }}
+          />
+        </label>
+
+        {previewUrl ? (
+          <div
             style={{
               width: "100%",
               maxHeight: 180,
-              objectFit: "contain",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
               borderRadius: 10,
               background: "var(--input-bg)",
+              flexShrink: 0,
             }}
-          />
-        </>
-      ) : null}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewUrl}
+              alt="Selected preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: 180,
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
+          </div>
+        ) : null}
 
-      <button
-        onClick={runTest}
-        disabled={running || (!imageUrl && !testImageFile)}
-        className={running ? "secondary-button" : "primary-button"}
-        style={{
-          padding: 14,
-          borderRadius: 12,
-          fontWeight: 600,
-          fontSize: 15,
-          cursor: running ? "not-allowed" : "pointer",
-          color: running ? "var(--text-muted)" : "#ffffff",
-        }}
-      >
-        {running ? "Generating..." : "Generate Captions"}
-      </button>
+        {error ? <div className="danger-banner" style={{ fontSize: 13 }}>{error}</div> : null}
 
-      {running ? (
-        <div
-          style={{
-            height: 4,
-            borderRadius: 999,
-            background: "var(--input-bg)",
-            overflow: "hidden",
-          }}
-        >
+        {renderedResults.length > 0 ? (
           <div
             style={{
-              height: "100%",
-              width: "40%",
-              borderRadius: 999,
-              background: "var(--button-primary)",
-              animation: "shimmer 1.4s ease-in-out infinite",
+              padding: "14px 16px",
+              borderRadius: 10,
+              background: "var(--input-bg)",
+              border: "1px solid var(--border)",
+              fontSize: 14,
+              color: "var(--text-primary)",
+              lineHeight: 1.5,
             }}
-          />
-        </div>
-      ) : null}
+          >
+            Caption generation completed successfully.
+          </div>
+        ) : null}
+      </div>
 
-      {error ? <div className="danger-banner" style={{ fontSize: 13 }}>{error}</div> : null}
-
-      {renderedResults.length > 0 ? (
-        <div
+      <div style={{ flexShrink: 0, marginTop: 12 }}>
+        {running ? (
+          <div
+            style={{
+              height: 4,
+              borderRadius: 999,
+              background: "var(--input-bg)",
+              overflow: "hidden",
+              marginBottom: 10,
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: "40%",
+                borderRadius: 999,
+                background: "linear-gradient(90deg, #6478ff, #a064ff)",
+                animation: "shimmer 1.4s ease-in-out infinite",
+              }}
+            />
+          </div>
+        ) : null}
+        <button
+          onClick={runTest}
+          disabled={running || (!imageUrl && !testImageFile)}
           style={{
-            padding: "14px 16px",
-            borderRadius: 10,
-            background: "var(--input-bg)",
-            border: "1px solid var(--border)",
+            width: "100%",
+            padding: 12,
+            borderRadius: 12,
+            fontWeight: 600,
             fontSize: 14,
-            color: "var(--text-primary)",
-            lineHeight: 1.5,
+            background:
+              running || (!imageUrl && !testImageFile)
+                ? "var(--input-bg)"
+                : "linear-gradient(135deg, rgba(100,120,255,0.85), rgba(140,100,255,0.85))",
+            color: running || (!imageUrl && !testImageFile) ? "var(--text-muted)" : "#fff",
+            border: "none",
+            cursor: running || (!imageUrl && !testImageFile) ? "not-allowed" : "pointer",
           }}
         >
-          Caption generation completed successfully.
-        </div>
-      ) : null}
-
-      <p style={{ margin: "auto 0 0", fontSize: 12, color: "var(--text-muted)" }}>
-        This panel follows the pipeline API flow: register an image, then call
-        `/pipeline/generate-captions` with your selected flavor.
-      </p>
+          {running ? "⏳ Generating..." : "▶ Generate Captions"}
+        </button>
+      </div>
     </div>
   )
 }

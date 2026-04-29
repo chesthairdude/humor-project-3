@@ -71,7 +71,7 @@ export default async function FlavorDetailPage({
   }))
 
   return (
-    <div className="flavor-detail-grid">
+    <div className="flavor-detail-grid flavor-detail-layout">
       <div>
         <StepEditor
           flavor={flavor as HumorFlavor}
