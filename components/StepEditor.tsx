@@ -2,11 +2,10 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { Modal } from "@/components/Modal"
 import type {
-  FlavorCaption,
   HumorFlavor,
   HumorFlavorStep,
   HumorFlavorStepType,
@@ -19,7 +18,6 @@ import { createClient } from "@/utils/supabase/client"
 type StepEditorProps = {
   flavor: HumorFlavor
   initialSteps: HumorFlavorStep[]
-  initialCaptions: FlavorCaption[]
   inputTypes: LlmInputType[]
   outputTypes: LlmOutputType[]
   models: LlmModel[]
@@ -29,18 +27,13 @@ type StepEditorProps = {
 
 function getDuplicateSlug(sourceSlug: string, existingSlugs: string[]) {
   const normalizedSlugs = new Set(existingSlugs.map((slug) => slug.trim().toLowerCase()))
-  const baseSlug = `${sourceSlug.trim()} copy`
+  let nextSlug = `copy-of-${sourceSlug.trim()}`
 
-  if (!normalizedSlugs.has(baseSlug.toLowerCase())) {
-    return baseSlug
+  while (normalizedSlugs.has(nextSlug.toLowerCase())) {
+    nextSlug = `copy-of-${nextSlug}`
   }
 
-  let suffix = 2
-  while (normalizedSlugs.has(`${baseSlug} ${suffix}`.toLowerCase())) {
-    suffix += 1
-  }
-
-  return `${baseSlug} ${suffix}`
+  return nextSlug
 }
 
 function getDefaultStepTypeId(stepTypes: HumorFlavorStepType[], nextOrder: number) {
@@ -72,7 +65,6 @@ function getDefaultModelId(models: LlmModel[]) {
 export function StepEditor({
   flavor,
   initialSteps,
-  initialCaptions,
   inputTypes,
   outputTypes,
   models,
@@ -81,7 +73,6 @@ export function StepEditor({
 }: StepEditorProps) {
   const router = useRouter()
   const [steps, setSteps] = useState(initialSteps)
-  const [captions, setCaptions] = useState(initialCaptions)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingStep, setEditingStep] = useState<HumorFlavorStep | null>(null)
   const [systemPrompt, setSystemPrompt] = useState("")
@@ -95,21 +86,6 @@ export function StepEditor({
   const [duplicatingFlavor, setDuplicatingFlavor] = useState(false)
   const [deletingFlavor, setDeletingFlavor] = useState(false)
   const [error, setError] = useState("")
-  const promptChainPreview = steps
-    .slice()
-    .sort((a, b) => a.order_by - b.order_by)
-    .map((step, index) =>
-      [
-        `Step ${index + 1}`,
-        `System Prompt:\n${step.llm_system_prompt || ""}`,
-        `User Prompt:\n${step.llm_user_prompt || ""}`,
-      ].join("\n\n")
-    )
-    .join("\n\n")
-
-  useEffect(() => {
-    setCaptions(initialCaptions)
-  }, [initialCaptions])
 
   function openCreateModal() {
     const nextOrder = steps.length > 0 ? Math.max(...steps.map((step) => step.order_by)) + 1 : 1
@@ -387,6 +363,20 @@ export function StepEditor({
           </div>
 
           <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <Link
+              href={`/flavors/${flavor.id}/edit`}
+              className="secondary-button"
+              style={{ padding: "12px 16px", fontWeight: 600 }}
+            >
+              Edit name
+            </Link>
+            <button
+              onClick={openCreateModal}
+              className="primary-button"
+              style={{ padding: "12px 16px", fontWeight: 600, cursor: "pointer" }}
+            >
+              Add step
+            </button>
             <button
               onClick={duplicateFlavor}
               disabled={duplicatingFlavor || deletingFlavor}
@@ -408,20 +398,6 @@ export function StepEditor({
             >
               {deletingFlavor ? "Deleting..." : "Delete"}
             </button>
-            <Link
-              href={`/flavors/${flavor.id}/edit`}
-              className="secondary-button"
-              style={{ padding: "12px 16px", fontWeight: 600 }}
-            >
-              Edit flavor
-            </Link>
-            <button
-              onClick={openCreateModal}
-              className="primary-button"
-              style={{ padding: "12px 16px", fontWeight: 600, cursor: "pointer" }}
-            >
-              Add step
-            </button>
           </div>
         </div>
 
@@ -430,33 +406,6 @@ export function StepEditor({
             {stepLoadError}
           </div>
         ) : null}
-
-        <div
-          style={{
-            marginBottom: 18,
-            padding: 18,
-            borderRadius: 16,
-            background: "var(--input-bg)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <p className="muted-label" style={{ margin: "0 0 10px" }}>
-            Exact Prompt Chain
-          </p>
-          <pre
-            style={{
-              margin: 0,
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-              fontFamily: "var(--font-family-sans)",
-              fontSize: 14,
-              lineHeight: 1.6,
-              color: "var(--text-primary)",
-            }}
-          >
-            {promptChainPreview || "No steps yet."}
-          </pre>
-        </div>
 
         <div style={{ display: "grid", gap: 12 }}>
           {steps.map((step, index) => {
@@ -594,78 +543,6 @@ export function StepEditor({
               No steps yet. Add the first instruction for this flavor.
             </div>
           ) : null}
-        </div>
-      </div>
-
-      <div className="glass-panel" style={{ borderRadius: 24, padding: 24, marginTop: 16 }}>
-        <div style={{ marginBottom: 16 }}>
-          <p className="muted-label" style={{ margin: "0 0 8px" }}>
-            Recent Output
-          </p>
-          <h2 style={{ margin: 0, fontSize: 22 }}>Captions produced by this flavor</h2>
-        </div>
-
-        <div style={{ display: "grid", gap: 12 }}>
-          {captions.length === 0 ? (
-            <div
-              style={{
-                padding: 18,
-                borderRadius: 14,
-                border: "1px dashed var(--input-border)",
-                color: "var(--text-secondary)",
-              }}
-            >
-              No generated captions recorded for this flavor yet.
-            </div>
-          ) : null}
-
-          {captions.map((caption) => (
-            <div
-              key={caption.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "96px 1fr",
-                gap: 14,
-                padding: 14,
-                borderRadius: 14,
-                background: "var(--input-bg)",
-                border: "1px solid var(--border)",
-              }}
-            >
-              <div
-                style={{
-                  width: 96,
-                  height: 72,
-                  borderRadius: 10,
-                  overflow: "hidden",
-                  background: "var(--surface)",
-                }}
-              >
-                {caption.images?.url ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                    src={caption.images.url}
-                    alt=""
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  </>
-                ) : null}
-              </div>
-              <div>
-                <p style={{ margin: 0, lineHeight: 1.5 }}>{caption.content}</p>
-                <p
-                  style={{
-                    margin: "8px 0 0",
-                    fontSize: 12,
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  {new Date(caption.created_datetime_utc).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 

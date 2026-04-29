@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
 
 import "@/app/globals.css"
 import { ThemeProvider } from "@/app/providers/ThemeProvider"
@@ -16,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={GeistSans.variable}>
+      <body>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

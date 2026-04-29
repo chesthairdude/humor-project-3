@@ -17,12 +17,11 @@ export function FlavorCard({
 
   return (
     <div
-      className="glass-panel"
+      className="glass-panel interactive-card"
       onClick={() => router.push(`/flavors/${flavor.id}`)}
       style={{
         padding: 24,
         borderRadius: 16,
-        cursor: "pointer",
         display: "flex",
         flexDirection: "column",
         gap: 16,

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 
+import { RecentOutputPanel } from "@/components/RecentOutputPanel"
 import { StepEditor } from "@/components/StepEditor"
 import { TestPanel } from "@/components/TestPanel"
 import type {
@@ -76,7 +77,6 @@ export default async function FlavorDetailPage({
         <StepEditor
           flavor={flavor as HumorFlavor}
           initialSteps={(steps || []) as HumorFlavorStep[]}
-          initialCaptions={normalizedCaptions}
           inputTypes={(inputTypes || []) as LlmInputType[]}
           outputTypes={(outputTypes || []) as LlmOutputType[]}
           models={(models || []) as LlmModel[]}
@@ -94,8 +94,9 @@ export default async function FlavorDetailPage({
           }
         />
       </div>
-      <div style={{ position: "sticky", top: 84 }}>
+      <div style={{ position: "sticky", top: 84, display: "grid", gap: 16 }}>
         <TestPanel flavorId={params.flavorId} />
+        <RecentOutputPanel captions={normalizedCaptions} />
       </div>
     </div>
   )

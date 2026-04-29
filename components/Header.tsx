@@ -1,22 +1,15 @@
 "use client"
 
-import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 
-import { useTheme, type Theme } from "@/app/providers/ThemeProvider"
+import { useTheme } from "@/app/providers/ThemeProvider"
 import { createClient } from "@/utils/supabase/client"
-
-const THEMES: Array<{ value: Theme; label: string }> = [
-  { value: "light", label: "☀️ Light" },
-  { value: "dark", label: "🌙 Dark" },
-  { value: "system", label: "💻 System" },
-]
 
 export function Header() {
   const router = useRouter()
   const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
   const [signingOut, setSigningOut] = useState(false)
 
   function getBackHref() {
@@ -36,6 +29,9 @@ export function Header() {
   }
 
   const backHref = getBackHref()
+  const nextTheme = resolvedTheme === "dark" ? "light" : "dark"
+  const themeLabel = resolvedTheme === "dark" ? "Switch to light" : "Switch to dark"
+  const themeIcon = resolvedTheme === "dark" ? "☀️" : "🌙"
 
   async function signOut() {
     setSigningOut(true)
@@ -79,43 +75,27 @@ export function Header() {
           </button>
         ) : null}
 
-        <Link
-          href="/flavors"
-          className="secondary-button"
-          style={{
-            padding: "6px 12px",
-            fontSize: 12,
-            fontWeight: 600,
-            color: "var(--text-secondary)",
-          }}
-        >
-          Flavor library
-        </Link>
-
         <span style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
           🎭 Humor Flavor Tool
         </span>
       </div>
 
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-        {THEMES.map((item) => (
-          <button
-            key={item.value}
-            onClick={() => setTheme(item.value)}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 600,
-              border: "1px solid var(--border)",
-              background: theme === item.value ? "var(--button-primary)" : "var(--surface)",
-              color: theme === item.value ? "#ffffff" : "var(--text-secondary)",
-              cursor: "pointer",
-            }}
-          >
-            {item.label}
-          </button>
-        ))}
+        <button
+          onClick={() => setTheme(nextTheme)}
+          className="secondary-button"
+          aria-label={themeLabel}
+          title={themeLabel}
+          style={{
+            padding: "6px 12px",
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            color: "var(--text-secondary)",
+          }}
+        >
+          {themeIcon} {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+        </button>
 
         <button
           onClick={signOut}

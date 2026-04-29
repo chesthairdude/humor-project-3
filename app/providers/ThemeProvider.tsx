@@ -9,11 +9,11 @@ import {
   type ReactNode,
 } from "react"
 
-export type Theme = "light" | "dark" | "system"
+export type Theme = "light" | "dark"
 
 type ThemeContextValue = {
   theme: Theme
-  resolvedTheme: "light" | "dark"
+  resolvedTheme: Theme
   setTheme: (theme: Theme) => void
 }
 
@@ -23,39 +23,24 @@ const STORAGE_KEY = "crackd-theme"
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === "undefined") {
-      return "system"
+      return "dark"
     }
 
     const storedTheme = window.localStorage.getItem(STORAGE_KEY)
-    return storedTheme === "light" || storedTheme === "dark" || storedTheme === "system"
-      ? storedTheme
-      : "system"
-  })
-
-  const [systemTheme, setSystemTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") {
-      return "dark"
+    if (storedTheme === "light" || storedTheme === "dark") {
+      return storedTheme
     }
 
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
   })
 
-  const resolvedTheme = theme === "system" ? systemTheme : theme
+  const resolvedTheme = theme
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", resolvedTheme)
+    document.documentElement.style.colorScheme = resolvedTheme
     window.localStorage.setItem(STORAGE_KEY, theme)
   }, [resolvedTheme, theme])
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
-    const handleChange = (event: MediaQueryListEvent) => {
-      setSystemTheme(event.matches ? "dark" : "light")
-    }
-
-    mediaQuery.addEventListener("change", handleChange)
-    return () => mediaQuery.removeEventListener("change", handleChange)
-  }, [])
 
   const value = useMemo(
     () => ({

@@ -1,5 +1,5 @@
 :root {
-  --font-family-sans: var(--font-geist-sans), sans-serif;
+  --font-family-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --accent-primary: #6478ff;
   --accent-secondary: #8c64ff;
   --accent-positive: #4cde80;
@@ -53,12 +53,19 @@ body {
 }
 
 html {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+
+body,
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-family-sans);
 }
 
 body {
   margin: 0;
-  font-family: var(--font-family-sans);
   background: var(--bg);
   background-attachment: fixed;
   color: var(--text-primary);
@@ -67,6 +74,12 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease,
+    background 0.2s ease;
 }
 
 button,
@@ -76,11 +89,50 @@ textarea {
 }
 
 button {
-  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    filter 0.2s ease;
 }
 
 button:hover:not(:disabled) {
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+  filter: saturate(1.08);
+}
+
+a:hover {
+  transform: translateY(-1px) scale(1.03);
+}
+
+button,
+a,
+[role="button"],
+[onclick],
+.interactive-card {
+  cursor: pointer;
+}
+
+.interactive-card {
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease;
+}
+
+.interactive-card:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow: var(--glass-highlight), 0 18px 40px rgba(0, 0, 0, 0.14);
+  border-color: rgba(100, 120, 255, 0.3);
+}
+
+.interactive-card:active,
+button:active:not(:disabled),
+a:active {
+  transform: scale(0.99);
 }
 
 button:disabled {

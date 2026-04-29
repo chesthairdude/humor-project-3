@@ -1,7 +1,7 @@
 "use client"
 
+import { useDeferredValue, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 
 import { FlavorCard } from "@/components/FlavorCard"
 import { Modal } from "@/components/Modal"
@@ -10,18 +10,13 @@ import { createClient } from "@/utils/supabase/client"
 
 function getDuplicateSlug(sourceSlug: string, existingSlugs: string[]) {
   const normalizedSlugs = new Set(existingSlugs.map((slug) => slug.trim().toLowerCase()))
-  const baseSlug = `${sourceSlug.trim()} copy`
+  let nextSlug = `copy-of-${sourceSlug.trim()}`
 
-  if (!normalizedSlugs.has(baseSlug.toLowerCase())) {
-    return baseSlug
+  while (normalizedSlugs.has(nextSlug.toLowerCase())) {
+    nextSlug = `copy-of-${nextSlug}`
   }
 
-  let suffix = 2
-  while (normalizedSlugs.has(`${baseSlug} ${suffix}`.toLowerCase())) {
-    suffix += 1
-  }
-
-  return `${baseSlug} ${suffix}`
+  return nextSlug
 }
 
 export function FlavorListClient({
@@ -33,12 +28,27 @@ export function FlavorListClient({
 }) {
   const router = useRouter()
   const [flavors, setFlavors] = useState(initialFlavors)
+  const [searchQuery, setSearchQuery] = useState("")
   const [open, setOpen] = useState(false)
   const [slug, setSlug] = useState("")
   const [description, setDescription] = useState("")
   const [saving, setSaving] = useState(false)
   const [duplicatingFlavorId, setDuplicatingFlavorId] = useState<number | null>(null)
   const [error, setError] = useState("")
+  const deferredSearchQuery = useDeferredValue(searchQuery)
+
+  const filteredFlavors = useMemo(() => {
+    const normalizedQuery = deferredSearchQuery.trim().toLowerCase()
+    if (!normalizedQuery) {
+      return flavors
+    }
+
+    return flavors.filter((flavor) => {
+      const slugMatch = flavor.slug.toLowerCase().includes(normalizedQuery)
+      const descriptionMatch = (flavor.description || "").toLowerCase().includes(normalizedQuery)
+      return slugMatch || descriptionMatch
+    })
+  }, [deferredSearchQuery, flavors])
 
   async function createFlavor() {
     if (!slug.trim()) {
@@ -202,6 +212,31 @@ export function FlavorListClient({
         </button>
       </div>
 
+      <div
+        className="glass-panel"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          padding: 16,
+          borderRadius: 18,
+          marginBottom: 20,
+          flexWrap: "wrap",
+        }}
+      >
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder="Search humor flavors by name or description"
+          aria-label="Search humor flavors"
+          style={{ flex: "1 1 320px", minWidth: 0 }}
+        />
+        <span className="muted-label" style={{ color: "var(--text-secondary)" }}>
+          {filteredFlavors.length} of {flavors.length}
+        </span>
+      </div>
+
       {loadError ? (
         <div className="danger-banner" style={{ marginBottom: 18 }}>
           {loadError}
@@ -225,6 +260,23 @@ export function FlavorListClient({
             check your deployed env vars and Supabase row-level security policies, then refresh.
           </p>
         </div>
+      ) : filteredFlavors.length === 0 ? (
+        <div
+          className="glass-panel"
+          style={{
+            padding: 28,
+            borderRadius: 20,
+            textAlign: "center",
+          }}
+        >
+          <p className="muted-label" style={{ margin: "0 0 10px" }}>
+            No matching flavors
+          </p>
+          <p style={{ margin: 0, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+            No humor flavors matched &quot;{searchQuery.trim()}&quot;. Try a different name or
+            keyword from the description.
+          </p>
+        </div>
       ) : (
         <div
           style={{
@@ -233,7 +285,7 @@ export function FlavorListClient({
             gap: 16,
           }}
         >
-          {flavors.map((flavor) => (
+          {filteredFlavors.map((flavor) => (
             <FlavorCard
               key={flavor.id}
               flavor={flavor}
