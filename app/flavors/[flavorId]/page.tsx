@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation"
 
-import { RecentOutputPanel } from "@/components/RecentOutputPanel"
+import { FlavorDetailSidebar } from "@/components/FlavorDetailSidebar"
 import { StepEditor } from "@/components/StepEditor"
-import { TestPanel } from "@/components/TestPanel"
 import type {
   FlavorCaption,
   HumorFlavor,
@@ -94,10 +93,7 @@ export default async function FlavorDetailPage({
           }
         />
       </div>
-      <div className="detail-sidebar">
-        <TestPanel flavorId={params.flavorId} />
-        <RecentOutputPanel captions={normalizedCaptions} />
-      </div>
+      <FlavorDetailSidebar flavorId={params.flavorId} initialCaptions={normalizedCaptions} />
     </div>
   )
 }

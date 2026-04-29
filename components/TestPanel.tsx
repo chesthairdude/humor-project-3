@@ -9,6 +9,7 @@ const API_BASE = process.env.NEXT_PUBLIC_CRACKD_API_BASE_URL || "https://api.alm
 
 type TestPanelProps = {
   flavorId: string
+  onGenerationComplete?: () => Promise<void> | void
 }
 
 type TestResult = {
@@ -26,7 +27,7 @@ type RegisteredImageResponse = {
   now: number
 }
 
-export function TestPanel({ flavorId }: TestPanelProps) {
+export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
   const router = useRouter()
   const [imageUrl, setImageUrl] = useState("")
   const [testImageFile, setTestImageFile] = useState<File | null>(null)
@@ -166,6 +167,7 @@ export function TestPanel({ flavorId }: TestPanelProps) {
       }
 
       setResults(data)
+      await onGenerationComplete?.()
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Request failed.")
@@ -183,10 +185,10 @@ export function TestPanel({ flavorId }: TestPanelProps) {
       style={{
         padding: 24,
         borderRadius: 24,
-        height: "100%",
         display: "flex",
         flexDirection: "column",
         gap: 16,
+        minHeight: 0,
       }}
     >
       <div>
@@ -259,15 +261,15 @@ export function TestPanel({ flavorId }: TestPanelProps) {
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-          src={previewUrl}
-          alt="Selected preview"
-          style={{
-            width: "100%",
-            maxHeight: 220,
-            objectFit: "contain",
-            borderRadius: 10,
-            background: "var(--input-bg)",
-          }}
+            src={previewUrl}
+            alt="Selected preview"
+            style={{
+              width: "100%",
+              maxHeight: 180,
+              objectFit: "contain",
+              borderRadius: 10,
+              background: "var(--input-bg)",
+            }}
           />
         </>
       ) : null}
