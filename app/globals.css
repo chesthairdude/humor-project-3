@@ -7,7 +7,9 @@
   --bg-gradient-light: linear-gradient(135deg, #e8eeff 0%, #f5f5ff 40%, #ffe8f5 100%);
   --bg-gradient-dark: linear-gradient(135deg, #0f1117 0%, #141820 50%, #110f1a 100%);
   --button-primary: linear-gradient(135deg, rgba(100, 120, 255, 0.85), rgba(140, 100, 255, 0.85));
+  --button-danger: linear-gradient(135deg, rgba(255, 68, 88, 0.95), rgba(210, 36, 72, 0.95));
   --button-primary-shadow: 0 4px 20px rgba(100, 120, 255, 0.3);
+  --button-danger-shadow: 0 8px 22px rgba(255, 68, 88, 0.26);
   --button-secondary-shadow: 0 8px 22px rgba(70, 86, 130, 0.12);
   --danger-surface: rgba(255, 68, 88, 0.08);
   --danger-border: rgba(255, 68, 88, 0.25);
@@ -224,6 +226,14 @@ textarea {
   background: var(--surface);
   color: var(--text-secondary);
   box-shadow: var(--button-secondary-shadow);
+}
+
+.danger-button {
+  border: none;
+  border-radius: 12px;
+  background: var(--button-danger);
+  color: #ffffff;
+  box-shadow: var(--button-danger-shadow);
 }
 
 .danger-banner {

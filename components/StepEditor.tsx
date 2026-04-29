@@ -348,35 +348,41 @@ export function StepEditor({
             display: "flex",
             justifyContent: "space-between",
             gap: 16,
+            alignItems: "flex-start",
             flexWrap: "wrap",
             marginBottom: 22,
           }}
         >
-          <div>
-            <p className="muted-label" style={{ margin: "0 0 8px" }}>
-              Prompt Chain
-            </p>
-            <h1 style={{ margin: 0, fontSize: 30, letterSpacing: "-0.04em" }}>{flavor.slug}</h1>
-            <p style={{ margin: "10px 0 0", fontSize: 14, color: "var(--text-secondary)" }}>
-              {flavor.description || "No description yet."}
-            </p>
+          <div style={{ display: "grid", gap: 14, flex: "1 1 420px", minWidth: 0 }}>
+            <div>
+              <p className="muted-label" style={{ margin: "0 0 8px" }}>
+                Prompt Chain
+              </p>
+              <h1 style={{ margin: 0, fontSize: 30, letterSpacing: "-0.04em" }}>{flavor.slug}</h1>
+              <p style={{ margin: "10px 0 0", fontSize: 14, color: "var(--text-secondary)" }}>
+                {flavor.description || "No description yet."}
+              </p>
+            </div>
+
+            <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+              <Link
+                href={`/flavors/${flavor.id}/edit`}
+                className="secondary-button"
+                style={{ padding: "12px 16px", fontWeight: 600 }}
+              >
+                Edit Name
+              </Link>
+              <button
+                onClick={openCreateModal}
+                className="primary-button"
+                style={{ padding: "12px 16px", fontWeight: 600, cursor: "pointer" }}
+              >
+                Add Step
+              </button>
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-            <Link
-              href={`/flavors/${flavor.id}/edit`}
-              className="secondary-button"
-              style={{ padding: "12px 16px", fontWeight: 600 }}
-            >
-              Edit Name
-            </Link>
-            <button
-              onClick={openCreateModal}
-              className="primary-button"
-              style={{ padding: "12px 16px", fontWeight: 600, cursor: "pointer" }}
-            >
-              Add Step
-            </button>
             <button
               onClick={duplicateFlavor}
               disabled={duplicatingFlavor || deletingFlavor}
@@ -388,12 +394,11 @@ export function StepEditor({
             <button
               onClick={deleteFlavor}
               disabled={duplicatingFlavor || deletingFlavor}
-              className="secondary-button"
+              className="danger-button"
               style={{
                 padding: "12px 16px",
                 fontWeight: 600,
                 cursor: "pointer",
-                color: "var(--accent-negative)",
               }}
             >
               {deletingFlavor ? "Deleting..." : "Delete"}
