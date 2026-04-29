@@ -181,31 +181,18 @@ textarea {
 
 .flavor-detail-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
 }
 
-.flavor-detail-layout {
-  height: calc(100vh - 120px);
-  min-height: 0;
-  overflow: hidden;
-}
-
 .detail-sidebar {
+  position: sticky;
+  top: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.recent-output-panel {
-  flex: 1;
-}
-
-.recent-output-list {
+  max-height: calc(100vh - 80px);
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -286,23 +273,10 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .flavor-detail-layout {
-    height: auto;
-    overflow: visible;
-  }
-
   .detail-sidebar {
     position: static;
-    height: auto;
+    max-height: none;
     overflow: visible;
-  }
-
-  .recent-output-panel {
-    flex: none;
-  }
-
-  .recent-output-list {
-    overflow-y: visible;
     padding-right: 0;
   }
 }

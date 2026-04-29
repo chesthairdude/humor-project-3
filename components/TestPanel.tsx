@@ -185,31 +185,16 @@ export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
       style={{
         padding: "20px 24px",
         borderRadius: 16,
-        flex: "0 0 60%",
-        display: "flex",
-        flexDirection: "column",
-        minHeight: 0,
-        overflow: "hidden",
       }}
     >
-      <div style={{ flexShrink: 0, marginBottom: 16 }}>
+      <div style={{ marginBottom: 16 }}>
         <p className="muted-label" style={{ margin: "0 0 4px" }}>
           Live Test
         </p>
         <h2 style={{ fontSize: 20, margin: 0 }}>Test Flavor</h2>
       </div>
 
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          minHeight: 0,
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          paddingRight: 4,
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <div>
           <label
             style={{
@@ -270,31 +255,22 @@ export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
         </label>
 
         {previewUrl ? (
-          <div
-            style={{
-              width: "100%",
-              maxHeight: 180,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-              borderRadius: 10,
-              background: "var(--input-bg)",
-              flexShrink: 0,
-            }}
-          >
+          <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={previewUrl}
               alt="Selected preview"
               style={{
-                maxWidth: "100%",
-                maxHeight: 180,
+                width: "100%",
+                maxHeight: 240,
                 objectFit: "contain",
+                borderRadius: 10,
                 display: "block",
+                marginTop: 12,
+                background: "var(--input-bg)",
               }}
             />
-          </div>
+          </>
         ) : null}
 
         {error ? <div className="danger-banner" style={{ fontSize: 13 }}>{error}</div> : null}
@@ -316,49 +292,50 @@ export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
         ) : null}
       </div>
 
-      <div style={{ flexShrink: 0, marginTop: 12 }}>
-        {running ? (
-          <div
-            style={{
-              height: 4,
-              borderRadius: 999,
-              background: "var(--input-bg)",
-              overflow: "hidden",
-              marginBottom: 10,
-            }}
-          >
-            <div
-              style={{
-                height: "100%",
-                width: "40%",
-                borderRadius: 999,
-                background: "linear-gradient(90deg, #6478ff, #a064ff)",
-                animation: "shimmer 1.4s ease-in-out infinite",
-              }}
-            />
-          </div>
-        ) : null}
-        <button
-          onClick={runTest}
-          disabled={running || (!imageUrl && !testImageFile)}
+      {running ? (
+        <div
           style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 12,
-            fontWeight: 600,
-            fontSize: 14,
-            background:
-              running || (!imageUrl && !testImageFile)
-                ? "var(--input-bg)"
-                : "linear-gradient(135deg, rgba(100,120,255,0.85), rgba(140,100,255,0.85))",
-            color: running || (!imageUrl && !testImageFile) ? "var(--text-muted)" : "#fff",
-            border: "none",
-            cursor: running || (!imageUrl && !testImageFile) ? "not-allowed" : "pointer",
+            height: 4,
+            borderRadius: 999,
+            background: "var(--input-bg)",
+            overflow: "hidden",
+            marginTop: 12,
+            marginBottom: 10,
           }}
         >
-          {running ? "⏳ Generating..." : "▶ Generate Captions"}
-        </button>
-      </div>
+          <div
+            style={{
+              height: "100%",
+              width: "40%",
+              borderRadius: 999,
+              background: "linear-gradient(90deg, #6478ff, #a064ff)",
+              animation: "shimmer 1.4s ease-in-out infinite",
+            }}
+          />
+        </div>
+      ) : null}
+
+      <button
+        onClick={runTest}
+        disabled={running || (!imageUrl && !testImageFile)}
+        style={{
+          width: "100%",
+          padding: 12,
+          marginTop: 12,
+          borderRadius: 12,
+          fontWeight: 600,
+          fontSize: 14,
+          background:
+            running || (!imageUrl && !testImageFile)
+              ? "var(--input-bg)"
+              : "linear-gradient(135deg, rgba(100,120,255,0.85), rgba(140,100,255,0.85))",
+          color: running || (!imageUrl && !testImageFile) ? "var(--text-muted)" : "#fff",
+          border: "none",
+          cursor: running || (!imageUrl && !testImageFile) ? "not-allowed" : "pointer",
+        }}
+      >
+        {running ? "⏳ Generating..." : "▶ Generate Captions"}
+      </button>
     </div>
   )
 }

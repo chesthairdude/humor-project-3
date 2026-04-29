@@ -9,32 +9,16 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
       style={{
         padding: "20px 24px",
         borderRadius: 16,
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        minHeight: 0,
-        overflow: "hidden",
       }}
     >
-      <div style={{ flexShrink: 0, marginBottom: 16 }}>
+      <div style={{ marginBottom: 16 }}>
         <p className="muted-label" style={{ margin: "0 0 4px" }}>
           Recent Output
         </p>
         <h2 style={{ margin: 0, fontSize: 20 }}>Captions Produced by This Flavor</h2>
       </div>
 
-      <div
-        className="recent-output-list"
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          minHeight: 0,
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          paddingRight: 4,
-        }}
-      >
+      <div className="recent-output-list" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {captions.length === 0 ? (
           <div
             style={{
