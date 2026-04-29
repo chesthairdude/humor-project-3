@@ -368,14 +368,14 @@ export function StepEditor({
               className="secondary-button"
               style={{ padding: "12px 16px", fontWeight: 600 }}
             >
-              Edit name
+              Edit Name
             </Link>
             <button
               onClick={openCreateModal}
               className="primary-button"
               style={{ padding: "12px 16px", fontWeight: 600, cursor: "pointer" }}
             >
-              Add step
+              Add Step
             </button>
             <button
               onClick={duplicateFlavor}
@@ -548,7 +548,7 @@ export function StepEditor({
 
       <Modal
         open={modalOpen}
-        title={editingStep ? "Edit step" : "Create step"}
+        title={editingStep ? "Edit Step" : "Create Step"}
         description={
           editingStep
             ? "Edit the exact stored system and user prompts for this step."
@@ -673,7 +673,7 @@ export function StepEditor({
               className="primary-button"
               style={{ padding: "12px 16px", fontWeight: 600, cursor: "pointer" }}
             >
-              {saving ? "Saving..." : editingStep ? "Save changes" : "Create step"}
+              {saving ? "Saving..." : editingStep ? "Save Changes" : "Create Step"}
             </button>
           </div>
         </div>

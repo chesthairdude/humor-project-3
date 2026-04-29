@@ -199,7 +199,7 @@ export function FlavorListClient({
             Flavor Library
           </p>
           <h1 style={{ margin: 0, fontSize: 34, lineHeight: 1, letterSpacing: "-0.04em" }}>
-            Humor flavors
+            Humor Flavors
           </h1>
         </div>
 
@@ -208,7 +208,7 @@ export function FlavorListClient({
           className="primary-button"
           style={{ padding: "14px 22px", fontWeight: 600, cursor: "pointer" }}
         >
-          Create new flavor
+          Create New Flavor
         </button>
       </div>
 
@@ -253,7 +253,7 @@ export function FlavorListClient({
           }}
         >
           <p className="muted-label" style={{ margin: "0 0 10px" }}>
-            No flavors yet
+            No Flavors Yet
           </p>
           <p style={{ margin: 0, color: "var(--text-secondary)", lineHeight: 1.6 }}>
             No humor flavors were returned from Supabase. If you expected existing data here,
@@ -270,7 +270,7 @@ export function FlavorListClient({
           }}
         >
           <p className="muted-label" style={{ margin: "0 0 10px" }}>
-            No matching flavors
+            No Matching Flavors
           </p>
           <p style={{ margin: 0, color: "var(--text-secondary)", lineHeight: 1.6 }}>
             No humor flavors matched &quot;{searchQuery.trim()}&quot;. Try a different name or
@@ -332,7 +332,7 @@ export function FlavorListClient({
 
       <Modal
         open={open}
-        title="Create humor flavor"
+        title="Create Humor Flavor"
         description="Add a new flavor and define its prompt steps next."
         onClose={() => {
           if (!saving) {
@@ -374,7 +374,7 @@ export function FlavorListClient({
               className="primary-button"
               style={{ padding: "12px 16px", cursor: "pointer", fontWeight: 600 }}
             >
-              {saving ? "Saving..." : "Save flavor"}
+              {saving ? "Saving..." : "Save Flavor"}
             </button>
           </div>
         </div>

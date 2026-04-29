@@ -94,7 +94,7 @@ export default async function FlavorDetailPage({
           }
         />
       </div>
-      <div style={{ position: "sticky", top: 84, display: "grid", gap: 16 }}>
+      <div className="detail-sidebar">
         <TestPanel flavorId={params.flavorId} />
         <RecentOutputPanel captions={normalizedCaptions} />
       </div>

@@ -193,7 +193,7 @@ export function TestPanel({ flavorId }: TestPanelProps) {
         <p className="muted-label" style={{ margin: "0 0 8px" }}>
           Live Test
         </p>
-        <h2 style={{ fontSize: 22, margin: 0 }}>Test flavor</h2>
+        <h2 style={{ fontSize: 22, margin: 0 }}>Test Flavor</h2>
       </div>
 
       <div>
@@ -285,7 +285,7 @@ export function TestPanel({ flavorId }: TestPanelProps) {
           color: running ? "var(--text-muted)" : "#ffffff",
         }}
       >
-        {running ? "Generating..." : "Generate captions"}
+        {running ? "Generating..." : "Generate Captions"}
       </button>
 
       {running ? (

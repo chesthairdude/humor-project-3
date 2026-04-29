@@ -4,15 +4,24 @@ import type { FlavorCaption } from "@/lib/types"
 
 export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
   return (
-    <div className="glass-panel" style={{ borderRadius: 24, padding: 24 }}>
+    <div
+      className="glass-panel recent-output-panel"
+      style={{
+        borderRadius: 24,
+        padding: 24,
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
+    >
       <div style={{ marginBottom: 16 }}>
         <p className="muted-label" style={{ margin: "0 0 8px" }}>
           Recent Output
         </p>
-        <h2 style={{ margin: 0, fontSize: 22 }}>Captions produced by this flavor</h2>
+        <h2 style={{ margin: 0, fontSize: 22 }}>Captions Produced by This Flavor</h2>
       </div>
 
-      <div style={{ display: "grid", gap: 12 }}>
+      <div className="recent-output-list" style={{ display: "grid", gap: 12, minHeight: 0 }}>
         {captions.length === 0 ? (
           <div
             style={{

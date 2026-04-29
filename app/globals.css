@@ -8,6 +8,7 @@
   --bg-gradient-dark: linear-gradient(135deg, #0f1117 0%, #141820 50%, #110f1a 100%);
   --button-primary: linear-gradient(135deg, rgba(100, 120, 255, 0.85), rgba(140, 100, 255, 0.85));
   --button-primary-shadow: 0 4px 20px rgba(100, 120, 255, 0.3);
+  --button-secondary-shadow: 0 8px 22px rgba(70, 86, 130, 0.12);
   --danger-surface: rgba(255, 68, 88, 0.08);
   --danger-border: rgba(255, 68, 88, 0.25);
 }
@@ -25,6 +26,7 @@
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   --shadow-large: 0 32px 64px rgba(0, 0, 0, 0.06);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --button-secondary-shadow: 0 10px 24px rgba(93, 109, 153, 0.18);
 }
 
 :root[data-theme="dark"] {
@@ -40,6 +42,7 @@
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   --shadow-large: 0 32px 64px rgba(0, 0, 0, 0.3);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --button-secondary-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
 }
 
 * {
@@ -181,6 +184,24 @@ textarea {
   align-items: start;
 }
 
+.detail-sidebar {
+  position: sticky;
+  top: 84px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: calc(100vh - 112px);
+}
+
+.recent-output-panel {
+  flex: 1;
+}
+
+.recent-output-list {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 .muted-label {
   font-size: 11px;
   font-weight: 700;
@@ -202,6 +223,7 @@ textarea {
   border-radius: 12px;
   background: var(--surface);
   color: var(--text-secondary);
+  box-shadow: var(--button-secondary-shadow);
 }
 
 .danger-banner {
@@ -246,5 +268,19 @@ textarea {
 
   .flavor-detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .detail-sidebar {
+    position: static;
+    max-height: none;
+  }
+
+  .recent-output-panel {
+    flex: none;
+  }
+
+  .recent-output-list {
+    overflow-y: visible;
+    padding-right: 0;
   }
 }

@@ -30,7 +30,7 @@ export function Header() {
 
   const backHref = getBackHref()
   const nextTheme = resolvedTheme === "dark" ? "light" : "dark"
-  const themeLabel = resolvedTheme === "dark" ? "Switch to light" : "Switch to dark"
+  const themeLabel = resolvedTheme === "dark" ? "Switch to Light" : "Switch to Dark"
   const themeIcon = resolvedTheme === "dark" ? "☀️" : "🌙"
 
   async function signOut() {
@@ -94,7 +94,7 @@ export function Header() {
             color: "var(--text-secondary)",
           }}
         >
-          {themeIcon} {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+          {themeIcon} {resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
         </button>
 
         <button
@@ -108,7 +108,7 @@ export function Header() {
             cursor: "pointer",
           }}
         >
-          {signingOut ? "Signing out..." : "Sign out"}
+          {signingOut ? "Signing Out..." : "Sign Out"}
         </button>
       </div>
     </header>

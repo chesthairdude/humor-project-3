@@ -34,7 +34,7 @@ export default function GlobalError({
           <p style={{ margin: "0 0 8px", fontSize: 12, opacity: 0.7, textTransform: "uppercase" }}>
             Server Error
           </p>
-          <h1 style={{ margin: "0 0 12px", fontSize: 28 }}>Application error</h1>
+          <h1 style={{ margin: "0 0 12px", fontSize: 28 }}>Application Error</h1>
           <p style={{ margin: "0 0 16px", lineHeight: 1.6, opacity: 0.85 }}>
             A server-side exception occurred. Check the deployment logs for the full stack trace.
           </p>

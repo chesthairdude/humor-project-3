@@ -81,7 +81,7 @@ export function FlavorEditForm({ flavor }: { flavor: HumorFlavor }) {
             className="primary-button"
             style={{ padding: "12px 16px", fontWeight: 600, cursor: "pointer" }}
           >
-            {saving ? "Saving..." : "Save changes"}
+            {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
