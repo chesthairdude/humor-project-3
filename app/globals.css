@@ -187,14 +187,9 @@ textarea {
 }
 
 .detail-sidebar {
-  position: sticky;
-  top: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: calc(100vh - 80px);
-  overflow-y: auto;
-  padding-right: 4px;
 }
 
 .muted-label {
@@ -274,9 +269,8 @@ textarea {
   }
 
   .detail-sidebar {
-    position: static;
-    max-height: none;
-    overflow: visible;
-    padding-right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 }

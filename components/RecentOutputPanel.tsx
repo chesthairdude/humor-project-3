@@ -18,7 +18,17 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
         <h2 style={{ margin: 0, fontSize: 20 }}>Captions Produced by This Flavor</h2>
       </div>
 
-      <div className="recent-output-list" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div
+        className="recent-output-list"
+        style={{
+          maxHeight: 320,
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          paddingRight: 4,
+        }}
+      >
         {captions.length === 0 ? (
           <div
             style={{
@@ -44,6 +54,7 @@ export function RecentOutputPanel({ captions }: { captions: FlavorCaption[] }) {
               borderRadius: 10,
               background: "var(--input-bg)",
               border: "1px solid var(--border)",
+              flexShrink: 0,
             }}
           >
             <div

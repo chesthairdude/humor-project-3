@@ -262,11 +262,11 @@ export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
               alt="Selected preview"
               style={{
                 width: "100%",
-                maxHeight: 240,
+                maxHeight: 220,
                 objectFit: "contain",
                 borderRadius: 10,
                 display: "block",
-                marginTop: 12,
+                marginBottom: 12,
                 background: "var(--input-bg)",
               }}
             />
