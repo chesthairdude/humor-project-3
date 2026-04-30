@@ -27,6 +27,31 @@ type RegisteredImageResponse = {
   now: number
 }
 
+function getCaptionText(caption: unknown) {
+  if (typeof caption === "string") {
+    return caption
+  }
+
+  if (!caption || typeof caption !== "object") {
+    return null
+  }
+
+  const captionRecord = caption as Record<string, unknown>
+  const knownCaptionFields = ["caption_content", "content", "caption", "text"]
+
+  for (const field of knownCaptionFields) {
+    if (field in captionRecord) {
+      const value = captionRecord[field]
+
+      if (typeof value === "string" && value.trim()) {
+        return value
+      }
+    }
+  }
+
+  return null
+}
+
 export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
   const router = useRouter()
   const [imageUrl, setImageUrl] = useState("")
@@ -176,8 +201,11 @@ export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
     }
   }
 
-  const renderedResults =
+  const renderedResults = (
     results && Array.isArray(results.captions) ? results.captions : results ? [results] : []
+  )
+    .map(getCaptionText)
+    .filter((caption): caption is string => Boolean(caption))
 
   return (
     <div
@@ -305,14 +333,7 @@ export function TestPanel({ flavorId, onGenerationComplete }: TestPanelProps) {
                   wordBreak: "break-word",
                 }}
               >
-                {typeof caption === "string"
-                  ? caption
-                  : typeof caption === "object" &&
-                      caption !== null &&
-                      "caption_content" in caption &&
-                      typeof caption.caption_content === "string"
-                    ? caption.caption_content
-                    : JSON.stringify(caption)}
+                {caption}
               </div>
             ))}
           </div>
